@@ -37,9 +37,9 @@ class PlotData(PlotInfo, MapDataGenerator):
                          botlat=botlat, dots_per_inch=dots_per_inch, save_pic=save_pic, smoothness=smoothness)
         MapDataGenerator.__init__(self, toplat=toplat, rightlat=rightlat, leftlat=leftlat,
                                   botlat=botlat, smoothness=smoothness)
-        self.save_pic = save_pic
         self.fig, self.ax = plt.subplots(figsize=(12, 8), subplot_kw={'projection': ccrs.PlateCarree()},
                                          dpi=dots_per_inch)
+
         self.cmap = cmap
         self._handleCMAP()
         self._plot()
