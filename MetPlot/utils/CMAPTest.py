@@ -1,62 +1,42 @@
 import matplotlib.pyplot as plt
-import numpy as np
-from scipy.ndimage import gaussian_filter
 import cartopy.crs as ccrs
 import cartopy.feature as cfeature
-import io
 from typing import Union
 import os
-from parsecpt import CPTTools
+from parsecpt import parse_cpt_string, create_colormap, read_file
 import matplotlib.colors as mcolors
-from abc import ABC
+from RandDataGenerator import MapDataGenerator
+from dataclasses import dataclass
+import io
 
 
-class MapDataGenerator(ABC):
-    def __init__(self, toplat: int = 90, rightlat: int = 180, leftlat: int = -180, botlat: int = -90):
-        self.botlat = botlat
-        self.toplat = toplat
-        self.rightlat = rightlat
-        self.leftlat = leftlat
-        self.spatialres = 100
-        self.data = None
-
-        self.griddedCoords = self._generate_grid()
-
-        self._validate_coords()
-
-        self._generate_random_data()
-
-    def _validate_coords(self):
-
-        if not (-90 <= self.botlat <= 90 and -90 <= self.toplat <= 90 and -180 <= self.leftlat <= 180 and -180 <=
-                self.rightlat <= 180):
-            raise ValueError("Coordinates are out of bounds")
-        if not (self.toplat > self.botlat and self.rightlat > self.leftlat):
-            raise ValueError("Invalid coordinate ordering")
-
-    def _generate_grid(self):
-        lat = np.linspace(self.botlat, self.toplat, self.spatialres)
-        lon = np.linspace(self.leftlat, self.rightlat, self.spatialres)
-        lon, lat = np.meshgrid(lon, lat)
-
-        return lon, lat
-
-    def _generate_random_data(self):
-        data = np.random.rand(100, 100)
-        self.data = gaussian_filter(data, sigma=5)
-        return self.data
+@dataclass
+class PlotInfo:
+    cmap: Union[str, io.TextIOWrapper, mcolors.LinearSegmentedColormap, mcolors.Colormap, mcolors.ListedColormap]
+    toplat: int = 90
+    rightlat: int = 180
+    leftlat: int = -180
+    botlat: int = -90
+    dots_per_inch: int = 300
+    save_pic: tuple = (False,)
+    smoothness: int = 5
 
 
-class PlotData(MapDataGenerator, CPTTools):
+class PlotData(PlotInfo, MapDataGenerator):
     def __init__(self, cmap: Union[str, io.TextIOWrapper, mcolors.LinearSegmentedColormap, mcolors.Colormap,
     mcolors.ListedColormap],
                  toplat: int = 90,
                  rightlat: int = 180,
                  leftlat: int = -180, botlat: int = -90,
                  dots_per_inch: int = 300,
-                 save_pic: bool = False
+                 save_pic: tuple = (False,),
+                 smoothness: int = 5,
+
                  ):
-        super().__init__(toplat, rightlat, leftlat, botlat)
+        super().__init__(cmap=cmap, toplat=toplat, rightlat=rightlat, leftlat=leftlat,
+                         botlat=botlat, dots_per_inch=dots_per_inch, save_pic=save_pic, smoothness=smoothness)
+        MapDataGenerator.__init__(self, toplat=toplat, rightlat=rightlat, leftlat=leftlat,
+                                  botlat=botlat, smoothness=smoothness)
         self.save_pic = save_pic
         self.fig, self.ax = plt.subplots(figsize=(12, 8), subplot_kw={'projection': ccrs.PlateCarree()},
                                          dpi=dots_per_inch)
@@ -71,12 +51,12 @@ class PlotData(MapDataGenerator, CPTTools):
                 self.cmap = plt.get_cmap(self.cmap)
             except:
                 if os.path.isfile(self.cmap):
-                    FileContent = self.read_file(self.cmap)
-                    self.cmap = self.create_colormap(self.parse_cpt_string(FileContent))
+                    FileContent = read_file(self.cmap)
+                    self.cmap = create_colormap(parse_cpt_string(FileContent))
                 else:
-                    self.cmap = self.create_colormap(self.parse_cpt_string(self.cmap))
+                    self.cmap = create_colormap(parse_cpt_string(self.cmap))
         elif isinstance(self.cmap, io.TextIOWrapper):
-            self.cmap = self.create_colormap(self.parse_cpt_string(self.cmap.read()))
+            self.cmap = create_colormap(parse_cpt_string(self.cmap.read()))
 
     def _plot(self):
         self.ax.add_feature(cfeature.COASTLINE)
@@ -91,5 +71,8 @@ class PlotData(MapDataGenerator, CPTTools):
         plt.colorbar(contour, ax=self.ax, orientation='vertical')
         self.ax.set_title('Color Map Test')
 
-        (plt.savefig('Plot.png', bbox_inches='tight') if self.save_pic else None)
+        (plt.savefig(self.save_pic[1] if len(self.save_pic) > 1 else "plot.png", bbox_inches='tight')
+         if self.save_pic[0] else None)
         plt.show(bbox_inches='tight')
+
+

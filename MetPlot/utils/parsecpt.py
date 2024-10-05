@@ -1,12 +1,11 @@
 import matplotlib.colors as mcolors
 import io
 
-class CPTTools:
-   @staticmethod
-   def read_file(file):
+
+def read_file(file):
        return open(file, 'r').read()
-   @staticmethod
-   def parse_cpt_string(cpt_string):
+
+def parse_cpt_string(cpt_string):
     """Parses the CPT Content and returns the colors"""
     cpt_colors = []
     cpt_file = io.StringIO(cpt_string)
@@ -21,8 +20,8 @@ class CPTTools:
     cpt_colors.sort()
     return cpt_colors
 
-   @staticmethod
-   def create_colormap(cpt_colors):
+
+def create_colormap(cpt_colors):
     """Creates a colormap for matplotlib, probably not useful for other libraries, but you can try"""
     positions = [c[0] for c in cpt_colors]
     rgb_colors = [c[1] for c in cpt_colors]
