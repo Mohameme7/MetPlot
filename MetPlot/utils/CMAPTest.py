@@ -12,6 +12,8 @@ import io
 
 @dataclass
 class PlotInfo:
+    """Needed Information for the PlotData class"""
+
     cmap: Union[str, io.TextIOWrapper, mcolors.LinearSegmentedColormap, mcolors.Colormap, mcolors.ListedColormap]
     toplat: int = 90
     rightlat: int = 180
@@ -23,16 +25,26 @@ class PlotInfo:
 
 
 class PlotData(PlotInfo, MapDataGenerator):
+    """Plots The Random data, probably going to be reduced to a more abstract version as a lot of stuff here will be
+    used too much.
+    :param cmap : Desired Colormap, can be a file object or a CPT String or matplotlib colormap object
+    :param toplat, rightlat, leftlat, botlat : Coordinations for desired area to plot at, set to global by default
+    :param dots_per_inch : The resolution of the map, set to 300 by default Which is pretty good
+    :param save_pic : Option to save a picture of a plot, should be a tuple, eg: (True, 'Cool_warmPlot.png')
+    :param smoothness : The smoothness of data, higher numbers will output less variance in data
+
+    """
     def __init__(self, cmap: Union[str, io.TextIOWrapper, mcolors.LinearSegmentedColormap, mcolors.Colormap,
     mcolors.ListedColormap],
                  toplat: int = 90,
                  rightlat: int = 180,
-                 leftlat: int = -180, botlat: int = -90,
+                 leftlat: int = -180,
+                 botlat: int = -90,
                  dots_per_inch: int = 300,
                  save_pic: tuple = (False,),
                  smoothness: int = 5,
-
                  ):
+
         super().__init__(cmap=cmap, toplat=toplat, rightlat=rightlat, leftlat=leftlat,
                          botlat=botlat, dots_per_inch=dots_per_inch, save_pic=save_pic, smoothness=smoothness)
         MapDataGenerator.__init__(self, toplat=toplat, rightlat=rightlat, leftlat=leftlat,
@@ -40,11 +52,11 @@ class PlotData(PlotInfo, MapDataGenerator):
         self.fig, self.ax = plt.subplots(figsize=(12, 8), subplot_kw={'projection': ccrs.PlateCarree()},
                                          dpi=dots_per_inch)
 
-        self.cmap = cmap
         self._handleCMAP()
         self._plot()
 
     def _handleCMAP(self):
+        """Handles given colormap format, could be a file or string, etc."""
 
         if isinstance(self.cmap, str):
             try:
@@ -59,6 +71,8 @@ class PlotData(PlotInfo, MapDataGenerator):
             self.cmap = create_colormap(parse_cpt_string(self.cmap.read()))
 
     def _plot(self):
+        """Plots The random data"""
+
         self.ax.add_feature(cfeature.COASTLINE)
         self.ax.add_feature(cfeature.BORDERS)
         self.ax.add_feature(cfeature.LAND, edgecolor='black')
