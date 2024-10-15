@@ -1,6 +1,5 @@
 # The nomads NCEP Website has no real API,
 # And it has the worst request error handling ever and thus this forces me to parse its html content to get what I need
-
 from bs4 import BeautifulSoup
 
 
@@ -35,7 +34,9 @@ class NomadsParse:
 
         forecast_hours = []
         for option in options:
-            if option['value'].endswith('0p25.f'):
+            base_value = '.'.join(option['value'].split('.')[:-1])
+
+            if base_value.endswith('.pgrb2.0p25'):
                 fhour = option['value'].split('.')[-1][1:]
                 forecast_hours.append(fhour)
         return forecast_hours
