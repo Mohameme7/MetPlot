@@ -8,7 +8,7 @@ import matplotlib.colors as mcolors
 from RandDataGenerator import MapDataGenerator
 from dataclasses import dataclass
 import io
-
+from MetPlot.Exceptions.downloader_exceptions import InvalidCMAP, InvalidCoordinates
 
 @dataclass
 class PlotInfo:
@@ -69,6 +69,9 @@ class PlotData(PlotInfo, MapDataGenerator):
                     self.cmap = create_colormap(parse_cpt_string(self.cmap))
         elif isinstance(self.cmap, io.TextIOWrapper):
             self.cmap = create_colormap(parse_cpt_string(self.cmap.read()))
+
+        else:
+            raise InvalidCMAP("Invalid Colormap format supplied")
 
     def _plot(self):
         """Plots The random data"""

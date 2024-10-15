@@ -1,6 +1,6 @@
 import httpx
 from typing import Literal, NamedTuple
-
+from MetPlot.Exceptions.downloader_exceptions import InvalidRequestMethodError
 
 class RequestInfo(NamedTuple):
     """Returned Request Information Needed for the download process"""
@@ -18,7 +18,8 @@ class RequestClient(httpx.Client):
         Sends a request with desired method and parameters
         :param method: Request Method
         :param kwargs: Request Params, eg: url, json, data, proxy
-        :return: Returns a RequestInfo object : (status_code, response_text, success)
+        :return Returns a RequestInfo object : (status_code, response_text, success)
+        :raises ValueError: If Request Method is not supported
         """
         RequestTypes = {
             'post': lambda: self.post(**kwargs),
@@ -29,4 +30,4 @@ class RequestClient(httpx.Client):
             return RequestInfo(status_code=response.status_code, response_text=response.text,
                                success=response.is_success)
         else:
-            raise ValueError(f'{method} not found.')
+            raise InvalidRequestMethodError(f'{method} not found.')
