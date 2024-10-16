@@ -37,17 +37,17 @@ class PlotData(PlotInfo, MapDataGenerator):
     def __init__(self, cmap: Union[str, io.TextIOWrapper, mcolors.LinearSegmentedColormap, mcolors.Colormap,
     mcolors.ListedColormap],
                  toplat: int = 90,
-                 rightlat: int = 180,
-                 leftlat: int = -180,
+                 rightlon: int = 180,
+                 leftlon: int = -180,
                  botlat: int = -90,
                  dots_per_inch: int = 300,
                  save_pic: tuple = (False,),
                  smoothness: int = 5,
                  ):
 
-        super().__init__(cmap=cmap, toplat=toplat, rightlat=rightlat, leftlat=leftlat,
+        super().__init__(cmap=cmap, toplat=toplat, rightlon=rightlon, leftlon=leftlon,
                          botlat=botlat, dots_per_inch=dots_per_inch, save_pic=save_pic, smoothness=smoothness)
-        MapDataGenerator.__init__(self, toplat=toplat, rightlat=rightlat, leftlat=leftlat,
+        MapDataGenerator.__init__(self, toplat=toplat, rightlon=rightlon, leftlon=leftlon,
                                   botlat=botlat, smoothness=smoothness)
         self.fig, self.ax = plt.subplots(figsize=(12, 8), subplot_kw={'projection': ccrs.PlateCarree()},
                                          dpi=dots_per_inch)
