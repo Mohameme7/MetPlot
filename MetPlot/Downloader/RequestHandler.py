@@ -27,7 +27,7 @@ class RequestClient(httpx.Client):
         }
         if method in RequestTypes:
             response = RequestTypes[method]()
-            return RequestInfo(status_code=response.status_code, response_text=response.text,
+            return RequestInfo(status_code=response.status_code, response_text=response.content,
                                success=response.is_success)
         else:
             raise InvalidRequestMethodError(f'{method} not found.')
