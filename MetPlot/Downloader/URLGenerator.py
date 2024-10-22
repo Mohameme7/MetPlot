@@ -57,25 +57,28 @@ class URLGen:
         return formatted_date
 
     def __createurl(self) -> str:
-        """Creates GFS Download URL From given data in the class
-        :returns Download URL
+        """Creates GFS Download URL From given data in the class.
+        :returns: Download URL
         """
-
-        urlparams = {}
+        urlparams = {
+            'dir': f"/gfs.{self.run_date}/{self.run_time}/atmos",
+            'file': f"gfs.t{self.run_time}z.pgrb2.0p25.f{self.hour:03d}",
+        }
         for var in self.variables:
             urlparams[f'var_{var.strip()}'] = 'on'
+
         for level in self.levels:
             formattedlevel = self.__levelformat(level)
             urlparams[formattedlevel] = 'on'
+
         if self.subregion and len(self.subregion) == 4:
             validate_coords(self.subregion[1], self.subregion[0], self.subregion[3], self.subregion[2])
             urlparams['subregion'] = ''
             urlparams['toplat'] = self.subregion[0]
+            urlparams['leftlon'] = self.subregion[2]
+            urlparams['rightlon'] = self.subregion[3]
             urlparams['bottomlat'] = self.subregion[1]
-            urlparams['rightlon'] = self.subregion[2]
-            urlparams['leftlon'] = self.subregion[3]
-        urlparams['dir'] = f"/gfs.{self.run_date}/{self.run_time}/atmos"
-        urlparams['file'] = f"gfs.t{self.run_time}z.pgrb2.0p25.f{self.hour:03d}"
         query_string = urllib.parse.urlencode(urlparams)
         url = f"{BASEURL}?{query_string}".replace('+', '_')
+
         return url

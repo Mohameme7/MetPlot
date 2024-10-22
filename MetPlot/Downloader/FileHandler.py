@@ -1,9 +1,7 @@
-import io
 import os
 import tempfile
 
 import pygrib
-from MetPlot.Downloader.MemoryDownload import Downloader
 
 
 class GribCreation:
@@ -26,5 +24,4 @@ class GribCreation:
                                 outfile.write(msg.tostring())
                         temp_file.close()
                         os.remove(temp_file.name)
-
 
