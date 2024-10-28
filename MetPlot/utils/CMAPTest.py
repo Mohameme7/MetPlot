@@ -2,13 +2,12 @@ import matplotlib.pyplot as plt
 import cartopy.crs as ccrs
 import cartopy.feature as cfeature
 from typing import Union
-import os
-from parsecpt import parse_cpt_string, create_colormap, read_file
 import matplotlib.colors as mcolors
-from RandDataGenerator import MapDataGenerator
+from MetPlot.utils.RandDataGenerator import MapDataGenerator
 from dataclasses import dataclass
 import io
-from MetPlot.Exceptions.downloader_exceptions import InvalidCMAP, InvalidCoordinates
+from MetPlot.validators import ColorMapValidator
+
 
 @dataclass
 class PlotInfo:
@@ -16,8 +15,8 @@ class PlotInfo:
 
     cmap: Union[str, io.TextIOWrapper, mcolors.LinearSegmentedColormap, mcolors.Colormap, mcolors.ListedColormap]
     toplat: int = 90
-    rightlat: int = 180
-    leftlat: int = -180
+    rightlon: int = 180
+    leftlon: int = -180
     botlat: int = -90
     dots_per_inch: int = 300
     save_pic: tuple = (False,)
@@ -34,6 +33,7 @@ class PlotData(PlotInfo, MapDataGenerator):
     :param smoothness : The smoothness of data, higher numbers will output less variance in data
 
     """
+
     def __init__(self, cmap: Union[str, io.TextIOWrapper, mcolors.LinearSegmentedColormap, mcolors.Colormap,
     mcolors.ListedColormap],
                  toplat: int = 90,
@@ -44,7 +44,6 @@ class PlotData(PlotInfo, MapDataGenerator):
                  save_pic: tuple = (False,),
                  smoothness: int = 5,
                  ):
-
         super().__init__(cmap=cmap, toplat=toplat, rightlon=rightlon, leftlon=leftlon,
                          botlat=botlat, dots_per_inch=dots_per_inch, save_pic=save_pic, smoothness=smoothness)
         MapDataGenerator.__init__(self, toplat=toplat, rightlon=rightlon, leftlon=leftlon,
@@ -52,26 +51,8 @@ class PlotData(PlotInfo, MapDataGenerator):
         self.fig, self.ax = plt.subplots(figsize=(12, 8), subplot_kw={'projection': ccrs.PlateCarree()},
                                          dpi=dots_per_inch)
 
-        self._handleCMAP()
+        self.cmap = ColorMapValidator(self.cmap)
         self._plot()
-
-    def _handleCMAP(self):
-        """Handles given colormap format, could be a file or string, etc."""
-
-        if isinstance(self.cmap, str):
-            try:
-                self.cmap = plt.get_cmap(self.cmap)
-            except:
-                if os.path.isfile(self.cmap):
-                    FileContent = read_file(self.cmap)
-                    self.cmap = create_colormap(parse_cpt_string(FileContent))
-                else:
-                    self.cmap = create_colormap(parse_cpt_string(self.cmap))
-        elif isinstance(self.cmap, io.TextIOWrapper):
-            self.cmap = create_colormap(parse_cpt_string(self.cmap.read()))
-
-        else:
-            raise InvalidCMAP("Invalid Colormap format supplied")
 
     def _plot(self):
         """Plots The random data"""
