@@ -48,7 +48,7 @@ class PlotData(PlotInfo, MapDataGenerator):
                          botlat=botlat, dots_per_inch=dots_per_inch, save_pic=save_pic, smoothness=smoothness)
         MapDataGenerator.__init__(self, toplat=toplat, rightlon=rightlon, leftlon=leftlon,
                                   botlat=botlat, smoothness=smoothness)
-        self.fig, self.ax = plt.subplots(figsize=(12, 8), subplot_kw={'projection': ccrs.PlateCarree()},
+        self.fig, self.ax = plt.subplots(figsize=(16, 8), subplot_kw={'projection': ccrs.PlateCarree()},
                                          dpi=dots_per_inch)
 
         self.cmap = ColorMapValidator(self.cmap)

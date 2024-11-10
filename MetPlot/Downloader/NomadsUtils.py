@@ -4,6 +4,7 @@ from typing import Tuple, List
 
 from bs4 import BeautifulSoup
 
+FORECAST_FILE_ENDS_WITH = '.pgrb2.0p25'
 
 class NomadsParse:
     """Parses Contents in the Nomads website"""
@@ -13,7 +14,6 @@ class NomadsParse:
 
     def CheckContent(self, text) -> bool:
         # Will be mainly used to parse errors, since nomads is a bit stupid and returns wrong status codes
-
         """Checks if wanted text exists in the html
         :param text: text to check
         :type text: str
@@ -40,7 +40,7 @@ class NomadsParse:
         for option in options:
             base_value = '.'.join(option['value'].split('.')[:-1])
 
-            if base_value.endswith('.pgrb2.0p25'):
+            if base_value.endswith(FORECAST_FILE_ENDS_WITH):
                 fhour = option['value'].split('.')[-1][1:]
                 forecast_hours.append(fhour)
         return forecast_hours
