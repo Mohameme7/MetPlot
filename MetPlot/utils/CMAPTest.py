@@ -6,7 +6,7 @@ import matplotlib.colors as mcolors
 from MetPlot.utils.RandDataGenerator import MapDataGenerator
 from dataclasses import dataclass
 import io
-from MetPlot.validators import ColorMapValidator
+from MetPlot.validators import color_map_validator
 
 
 @dataclass
@@ -48,10 +48,10 @@ class PlotData(PlotInfo, MapDataGenerator):
                          botlat=botlat, dots_per_inch=dots_per_inch, save_pic=save_pic, smoothness=smoothness)
         MapDataGenerator.__init__(self, toplat=toplat, rightlon=rightlon, leftlon=leftlon,
                                   botlat=botlat, smoothness=smoothness)
-        self.fig, self.ax = plt.subplots(figsize=(16, 8), subplot_kw={'projection': ccrs.PlateCarree()},
+        self.fig, self.ax = plt.subplots(figsize=(12, 8 ), subplot_kw={'projection': ccrs.PlateCarree()},
                                          dpi=dots_per_inch)
 
-        self.cmap = ColorMapValidator(self.cmap)
+        self.cmap = color_map_validator(self.cmap)
         self._plot()
 
     def _plot(self):
@@ -63,14 +63,12 @@ class PlotData(PlotInfo, MapDataGenerator):
 
         contour = self.ax.contourf(self.griddedCoords[0], self.griddedCoords[1], self.data, cmap=self.cmap,
                                    transform=ccrs.PlateCarree())
-        plt.gca().set_axis_off()
 
-        plt.margins(0, 0)
         plt.colorbar(contour, ax=self.ax, orientation='vertical')
         self.ax.set_title('Color Map Test')
 
         (plt.savefig(self.save_pic[1] if len(self.save_pic) > 1 else "plot.png", bbox_inches='tight')
          if self.save_pic[0] else None)
-        plt.show(bbox_inches='tight')
+        plt.show()
 
 
