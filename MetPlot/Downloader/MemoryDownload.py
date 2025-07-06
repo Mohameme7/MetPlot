@@ -8,18 +8,17 @@ class Downloader(RequestClient):
         super().__init__()
         self.links = links
 
-    def retrievedata(self, url):
+    def retrievedata(self, url) -> bytes:
         """Sends a request to get file data and returns it
          :param url: url to retrieve data from
          :returns received data from the request
          """
         req = self.SendRequest('get', url=url)
-        print(req.response_text)
 
-        if not req.success:
-            raise Exception('Request failed')
-        print("Retrieved Data from {}".format(url))
-        return req.response_text
+        if req.success:
+             return req.response_text
+        else:
+            return b""
 
     def submitdownloads(self):
         """Submit all links to download the data."""
