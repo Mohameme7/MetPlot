@@ -2,7 +2,7 @@ import re
 import os
 import io
 import matplotlib.pyplot as plt
-from MetPlot.Exceptions.downloader_exceptions import InvalidCoordinates, InvalidCMAP
+from MetPlot.Exceptions.downloader_exceptions import InvalidCoordinates, InvalidColorMapFormat
 from MetPlot.utils.parsecpt import read_file, create_colormap, parse_cpt_string
 
 
@@ -26,26 +26,30 @@ def validate_coords(botlat, toplat, leftlon, rightlon) -> None:
 
 
 
-def ColorMapValidator(Colormap):
-    if isinstance(Colormap, str):
-        if is_cpt_format(Colormap):
-            Colormap = create_colormap(parse_cpt_string(Colormap))
-            return Colormap
+def color_map_validator(colormap):
+    if isinstance(colormap, str):
+        if is_cpt_format(colormap):
+            colormap = create_colormap(parse_cpt_string(colormap))
+            return colormap
+
+
         try:
-            Colormap = plt.get_cmap(Colormap)
-            return Colormap
-        except Exception:
-            if os.path.isfile(Colormap):
-                FileContent = read_file(Colormap)
-                if is_cpt_format(FileContent):
-                    Colormap = create_colormap(parse_cpt_string(FileContent))
-                    return Colormap
-    elif isinstance(Colormap, io.TextIOWrapper):
-        content = Colormap.read()
+            colormap = plt.get_cmap(colormap)
+            return colormap
+        except ValueError:
+            if os.path.isfile(colormap):
+                file_content = read_file(colormap)
+                if is_cpt_format(file_content):
+                    colormap = create_colormap(parse_cpt_string(file_content))
+                    return colormap
+    elif isinstance(colormap, io.TextIOWrapper):
+        content = colormap.read()
         if is_cpt_format(content):
-            Colormap = create_colormap(parse_cpt_string(content))
-            return Colormap
-    raise InvalidCMAP("Invalid Colormap format supplied")
+            colormap = create_colormap(parse_cpt_string(content))
+            return colormap
+    else:
+
+        raise InvalidColorMapFormat("Invalid Colormap format supplied")
 
 def is_cpt_format(content: str) -> bool:
     range_line_pattern = re.compile(
