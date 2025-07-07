@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Method Inspired from CDS Website -->
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Map Selector</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <style>
+        #map {
+            width: 400px;
+            height: 400px;
+            position: absolute;
+            right: 2px;
+            top: 300px;
+            z-index: 100;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="map"></div>
+    <script>
+        const map = L.map('map').setView([0, 0], 2);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+        }).addTo(map);
+
+        let boundingBox;
+        let isDrawing = false;
+        let startLatLng;
+
+
+        function updateBoundingBoxFromInputs(top, bottom, left, right) {
+            clearBoundingBoxes();
+            boundingBox = L.rectangle([[top, left], [bottom, right]], { color: "#ff7800", weight: 1 }).addTo(map);
+            map.fitBounds(boundingBox.getBounds());
+        }
+
+        function clearBoundingBoxes() {
+            if (boundingBox) {
+                boundingBox.remove();
+                boundingBox = null;
+            }
+        }
+
+        map.on('mousedown', function(e) {
+            if (e.originalEvent.shiftKey && e.originalEvent.button === 0) {
+                isDrawing = true;
+                startLatLng = e.latlng;
+                clearBoundingBoxes();
+                boundingBox = L.rectangle([startLatLng, startLatLng], { color: "#ff7800", weight: 1 }).addTo(map);
+            }
+        });
+
+        map.on('mousemove', function(e) {
+            if (isDrawing && boundingBox) {
+                const newLatLng = e.latlng;
+                boundingBox.setBounds([
+                    [Math.min(startLatLng.lat, newLatLng.lat), Math.min(startLatLng.lng, newLatLng.lng)],
+                    [Math.max(startLatLng.lat, newLatLng.lat), Math.max(startLatLng.lng, newLatLng.lng)]
+                ]);
+            }
+        });
+
+        map.on('mouseup', function(e) {
+            if (isDrawing && boundingBox) {
+                const bounds = boundingBox.getBounds();
+                const topLat = parseInt(bounds.getNorth(), 10);
+                const bottomLat = parseInt(bounds.getSouth(), 10);
+                const leftLng = parseInt(bounds.getWest(), 10);
+                const rightLng = parseInt(bounds.getEast(), 10);
+
+
+                fetch(`/update_coordinates/${topLat}/${bottomLat}/${leftLng}/${rightLng}`)
+                .then(response => response.json())
+                .then(data => console.log(data.message));
+                isDrawing = false;
+            }
+        });
+    </script>
+</body>
+</html>

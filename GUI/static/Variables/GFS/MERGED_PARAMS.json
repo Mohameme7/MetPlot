@@ -1,0 +1,1493 @@
+{
+    "4LFTX": {
+        "name": "Best lifted index",
+        "levels": [
+            "surface"
+        ]
+    },
+    "ABSV": {
+        "name": "Absolute vorticity",
+        "levels": [
+            "900_mb",
+            "70_mb",
+            "700_mb",
+            "450_mb",
+            "425_mb",
+            "650_mb",
+            "300_mb",
+            "350_mb",
+            "372_mb",
+            "200_mb",
+            "0.2_mb",
+            "1000_mb",
+            "0.02_mb",
+            "800_mb",
+            "40_mb",
+            "825_mb",
+            "0.04_mb",
+            "775_mb",
+            "0.4_mb",
+            "100_mb",
+            "50_mb",
+            "15_mb",
+            "975_mb",
+            "475_mb",
+            "925_mb",
+            "375_mb",
+            "250_mb",
+            "7_mb",
+            "10_mb",
+            "1_mb",
+            "0.01_mb",
+            "150_mb",
+            "750_mb",
+            "325_mb",
+            "30_mb",
+            "625_mb",
+            "500_mb",
+            "400_mb",
+            "0.7_mb",
+            "950_mb",
+            "600_mb",
+            "575_mb",
+            "550_mb",
+            "2_mb",
+            "225_mb",
+            "125_mb",
+            "525_mb",
+            "875_mb",
+            "275_mb",
+            "20_mb",
+            "3_mb",
+            "725_mb",
+            "5_mb",
+            "0.1_mb",
+            "850_mb",
+            "0.07_mb",
+            "175_mb",
+            "675_mb"
+        ]
+    },
+    "ACPCP": {
+        "name": "Convective Precipitation",
+        "levels": [
+            "surface"
+        ]
+    },
+    "ALBDO": {
+        "name": "Albedo",
+        "levels": [
+            "surface"
+        ]
+    },
+    "APCP": {
+        "name": "Total Precipitation",
+        "levels": [
+            "surface"
+        ]
+    },
+    "CAPE": {
+        "name": "Convective available potential energy",
+        "levels": [
+            "180-0_mb_above_ground",
+            "90-0_mb_above_ground",
+            "255-0_mb_above_ground",
+            "surface"
+        ]
+    },
+    "CFRZR": {
+        "name": "Categorical freezing rain",
+        "levels": [
+            "surface"
+        ]
+    },
+    "CICEP": {
+        "name": "Categorical ice pellets",
+        "levels": [
+            "surface"
+        ]
+    },
+    "CIN": {
+        "name": "Convective inhibition",
+        "levels": [
+            "180-0_mb_above_ground",
+            "90-0_mb_above_ground",
+            "255-0_mb_above_ground",
+            "surface"
+        ]
+    },
+    "CLWMR": {
+        "name": "Cloud mixing ratio",
+        "levels": [
+            "900_mb",
+            "70_mb",
+            "700_mb",
+            "450_mb",
+            "425_mb",
+            "650_mb",
+            "300_mb",
+            "350_mb",
+            "200_mb",
+            "1000_mb",
+            "800_mb",
+            "825_mb",
+            "775_mb",
+            "820_mb",
+            "100_mb",
+            "50_mb",
+            "975_mb",
+            "475_mb",
+            "925_mb",
+            "375_mb",
+            "250_mb",
+            "150_mb",
+            "750_mb",
+            "325_mb",
+            "625_mb",
+            "500_mb",
+            "400_mb",
+            "950_mb",
+            "600_mb",
+            "575_mb",
+            "550_mb",
+            "225_mb",
+            "125_mb",
+            "525_mb",
+            "875_mb",
+            "275_mb",
+            "725_mb",
+            "1_hybrid_level",
+            "850_mb",
+            "175_mb",
+            "675_mb"
+        ]
+    },
+    "CNWAT": {
+        "name": "Plant canopy surface water",
+        "levels": [
+            "surface"
+        ]
+    },
+    "CPOFP": {
+        "name": "Percent frozen precipitation",
+        "levels": [
+            "surface"
+        ]
+    },
+    "CPRAT": {
+        "name": "Convective precipitation rate",
+        "levels": [
+            "surface"
+        ]
+    },
+    "CRAIN": {
+        "name": "Categorical rain",
+        "levels": [
+            "surface"
+        ]
+    },
+    "CSNOW": {
+        "name": "Categorical snow",
+        "levels": [
+            "surface"
+        ]
+    },
+    "CWAT": {
+        "name": "Cloud water",
+        "levels": [
+            "entire_atmosphere_(considered_as_a_single_layer)"
+        ]
+    },
+    "CWORK": {
+        "name": "Cloud work function",
+        "levels": [
+            "entire_atmosphere_(considered_as_a_single_layer)"
+        ]
+    },
+    "DLWRF": {
+        "name": "Downward long-wave radiation flux",
+        "levels": [
+            "surface"
+        ]
+    },
+    "DPT": {
+        "name": "Dew point temperature",
+        "levels": [
+            "2_m_above_ground"
+        ]
+    },
+    "DSWRF": {
+        "name": "Downward short-wave radiation flux",
+        "levels": [
+            "surface"
+        ]
+    },
+    "DZDT": {
+        "name": "Vertical velocity",
+        "levels": [
+            "900_mb",
+            "70_mb",
+            "700_mb",
+            "450_mb",
+            "425_mb",
+            "650_mb",
+            "300_mb",
+            "350_mb",
+            "200_mb",
+            "0.2_mb",
+            "1000_mb",
+            "0.02_mb",
+            "800_mb",
+            "40_mb",
+            "825_mb",
+            "0.04_mb",
+            "775_mb",
+            "0.4_mb",
+            "100_mb",
+            "50_mb",
+            "15_mb",
+            "975_mb",
+            "475_mb",
+            "925_mb",
+            "375_mb",
+            "250_mb",
+            "7_mb",
+            "10_mb",
+            "1_mb",
+            "0.01_mb",
+            "150_mb",
+            "750_mb",
+            "325_mb",
+            "30_mb",
+            "625_mb",
+            "500_mb",
+            "400_mb",
+            "0.7_mb",
+            "950_mb",
+            "600_mb",
+            "575_mb",
+            "550_mb",
+            "2_mb",
+            "225_mb",
+            "125_mb",
+            "525_mb",
+            "875_mb",
+            "275_mb",
+            "20_mb",
+            "3_mb",
+            "725_mb",
+            "5_mb",
+            "0.1_mb",
+            "850_mb",
+            "0.07_mb",
+            "175_mb",
+            "675_mb"
+        ]
+    },
+    "FLDCP": {
+        "name": "Field capacity",
+        "levels": [
+            "surface"
+        ]
+    },
+    "FRICV": {
+        "name": "Surface friction velocity",
+        "levels": [
+            "surface"
+        ]
+    },
+    "GFLUX": {
+        "name": "Ground heat flux",
+        "levels": [
+            "surface"
+        ]
+    },
+    "GRLE": {
+        "name": "Graupel",
+        "levels": [
+            "900_mb",
+            "70_mb",
+            "700_mb",
+            "450_mb",
+            "425_mb",
+            "650_mb",
+            "300_mb",
+            "350_mb",
+            "200_mb",
+            "1000_mb",
+            "800_mb",
+            "825_mb",
+            "775_mb",
+            "100_mb",
+            "50_mb",
+            "975_mb",
+            "475_mb",
+            "925_mb",
+            "375_mb",
+            "250_mb",
+            "150_mb",
+            "750_mb",
+            "325_mb",
+            "625_mb",
+            "500_mb",
+            "400_mb",
+            "950_mb",
+            "600_mb",
+            "575_mb",
+            "550_mb",
+            "225_mb",
+            "125_mb",
+            "525_mb",
+            "875_mb",
+            "275_mb",
+            "725_mb",
+            "1_hybrid_level",
+            "850_mb",
+            "175_mb",
+            "675_mb"
+        ]
+    },
+    "GUST": {
+        "name": "Wind speed (gust)",
+        "levels": [
+            "surface"
+        ]
+    },
+    "HCDC": {
+        "name": "High Cloud Cover",
+        "levels": [
+            "high_cloud_layer"
+        ]
+    },
+    "HGT": {
+        "name": "Geopotential height",
+        "levels": [
+            "900_mb",
+            "70_mb",
+            "700_mb",
+            "450_mb",
+            "425_mb",
+            "PV=2e-06_(Km^2/kg/s)_surface",
+            "650_mb",
+            "300_mb",
+            "350_mb",
+            "PV=-1.5e-06_(Km^2/kg/s)_surface",
+            "0C_isotherm",
+            "200_mb",
+            "PV=1.5e-06_(Km^2/kg/s)_surface",
+            "0.2_mb",
+            "1000_mb",
+            "0.02_mb",
+            "PV=5e-07_(Km^2/kg/s)_surface",
+            "cloud_ceiling",
+            "800_mb",
+            "40_mb",
+            "825_mb",
+            "0.04_mb",
+            "775_mb",
+            "max_wind",
+            "highest_tropospheric_freezing_level",
+            "0.4_mb",
+            "100_mb",
+            "50_mb",
+            "surface",
+            "15_mb",
+            "975_mb",
+            "475_mb",
+            "925_mb",
+            "tropopause",
+            "PV=1e-06_(Km^2/kg/s)_surface",
+            "375_mb",
+            "250_mb",
+            "7_mb",
+            "10_mb",
+            "1_mb",
+            "0.01_mb",
+            "150_mb",
+            "750_mb",
+            "325_mb",
+            "30_mb",
+            "PV=-1e-06_(Km^2/kg/s)_surface",
+            "625_mb",
+            "500_mb",
+            "400_mb",
+            "0.7_mb",
+            "950_mb",
+            "600_mb",
+            "575_mb",
+            "550_mb",
+            "2_mb",
+            "225_mb",
+            "125_mb",
+            "525_mb",
+            "875_mb",
+            "275_mb",
+            "20_mb",
+            "3_mb",
+            "725_mb",
+            "5_mb",
+            "1_hybrid_level",
+            "850_mb",
+            "0.1_mb",
+            "0.07_mb",
+            "PV=-2e-06_(Km^2/kg/s)_surface",
+            "PV=-5e-07_(Km^2/kg/s)_surface",
+            "175_mb",
+            "675_mb"
+        ]
+    },
+    "HINDEX": {
+        "name": "Haines index",
+        "levels": [
+            "surface"
+        ]
+    },
+    "HLCY": {
+        "name": "Storm relative helicity",
+        "levels": [
+            "3000-0_m_above_ground"
+        ]
+    },
+    "HPBL": {
+        "name": "Planetary boundary layer height",
+        "levels": [
+            "surface"
+        ]
+    },
+    "ICAHT": {
+        "name": "ICAO standard atmosphere reference height",
+        "levels": [
+            "max_wind",
+            "tropopause"
+        ]
+    },
+    "ICEC": {
+        "name": "Ice cover",
+        "levels": [
+            "surface"
+        ]
+    },
+    "ICEG": {
+        "name": "Ice Growth Rate",
+        "levels": [
+            "10_m_above_mean_sea_level"
+        ]
+    },
+    "ICETK": {
+        "name": "Ice thickness",
+        "levels": [
+            "surface"
+        ]
+    },
+    "ICETMP": {
+        "name": "Ice temperature",
+        "levels": [
+            "surface"
+        ]
+    },
+    "ICMR": {
+        "name": "Ice water mixing ratio",
+        "levels": [
+            "900_mb",
+            "70_mb",
+            "700_mb",
+            "450_mb",
+            "425_mb",
+            "650_mb",
+            "300_mb",
+            "350_mb",
+            "200_mb",
+            "1000_mb",
+            "800_mb",
+            "825_mb",
+            "775_mb",
+            "100_mb",
+            "50_mb",
+            "975_mb",
+            "475_mb",
+            "925_mb",
+            "375_mb",
+            "250_mb",
+            "150_mb",
+            "750_mb",
+            "325_mb",
+            "625_mb",
+            "500_mb",
+            "400_mb",
+            "950_mb",
+            "600_mb",
+            "575_mb",
+            "550_mb",
+            "225_mb",
+            "125_mb",
+            "525_mb",
+            "875_mb",
+            "275_mb",
+            "725_mb",
+            "1_hybrid_level",
+            "850_mb",
+            "175_mb",
+            "675_mb"
+        ]
+    },
+    "LAND": {
+        "name": "Land cover",
+        "levels": [
+            "surface"
+        ]
+    },
+    "LCDC": {
+        "name": "Low Cloud Cover",
+        "levels": [
+            "low_cloud_layer"
+        ]
+    },
+    "LFTX": {
+        "name": "Surface lifted index",
+        "levels": [
+            "surface"
+        ]
+    },
+    "LHTFL": {
+        "name": "Latent heat net flux",
+        "levels": [
+            "surface"
+        ]
+    },
+    "MCDC": {
+        "name": "Middle Cloud Cover",
+        "levels": [
+            "middle_cloud_layer"
+        ]
+    },
+    "MSLET": {
+        "name": "MSLP (Eta model reduction)",
+        "levels": [
+            "mean_sea_level"
+        ]
+    },
+    "O3MR": {
+        "name": "Ozone mixing ratio",
+        "levels": [
+            "900_mb",
+            "70_mb",
+            "700_mb",
+            "450_mb",
+            "650_mb",
+            "300_mb",
+            "350_mb",
+            "200_mb",
+            "0.2_mb",
+            "1000_mb",
+            "0.02_mb",
+            "800_mb",
+            "40_mb",
+            "0.04_mb",
+            "0.4_mb",
+            "50_mb",
+            "100_mb",
+            "15_mb",
+            "975_mb",
+            "925_mb",
+            "250_mb",
+            "7_mb",
+            "10_mb",
+            "1_mb",
+            "0.01_mb",
+            "150_mb",
+            "750_mb",
+            "30_mb",
+            "500_mb",
+            "400_mb",
+            "0.7_mb",
+            "950_mb",
+            "600_mb",
+            "550_mb",
+            "2_mb",
+            "20_mb",
+            "3_mb",
+            "5_mb",
+            "0.1_mb",
+            "850_mb",
+            "0.07_mb"
+        ]
+    },
+    "PEVPR": {
+        "name": "Potential Evaporation Rate",
+        "levels": [
+            "surface"
+        ]
+    },
+    "PLPL": {
+        "name": "Pressure of level from which parcel was lifted",
+        "levels": [
+            "255-0_mb_above_ground"
+        ]
+    },
+    "POT": {
+        "name": "Potential Temperature",
+        "levels": [
+            "0.995_sigma_level"
+        ]
+    },
+    "PRATE": {
+        "name": "Precipitation Rate",
+        "levels": [
+            "surface"
+        ]
+    },
+    "PRES": {
+        "name": "Pressure",
+        "levels": [
+            "PV=1e-06_(Km^2/kg/s)_surface",
+            "low_cloud_top_level",
+            "tropopause",
+            "PV=2e-06_(Km^2/kg/s)_surface",
+            "high_cloud_bottom_level",
+            "80_m_above_ground",
+            "PV=-1.5e-06_(Km^2/kg/s)_surface",
+            "PV=-1e-06_(Km^2/kg/s)_surface",
+            "convective_cloud_bottom_level",
+            "PV=1.5e-06_(Km^2/kg/s)_surface",
+            "middle_cloud_top_level",
+            "high_cloud_top_level",
+            "PV=5e-07_(Km^2/kg/s)_surface",
+            "max_wind",
+            "PV=-2e-06_(Km^2/kg/s)_surface",
+            "convective_cloud_top_level",
+            "surface",
+            "PV=-5e-07_(Km^2/kg/s)_surface",
+            "low_cloud_bottom_level",
+            "middle_cloud_bottom_level"
+        ]
+    },
+    "PRMSL": {
+        "name": "Pressure Reduced to MSL",
+        "levels": [
+            "mean_sea_level"
+        ]
+    },
+    "PWAT": {
+        "name": "Precipitable Water",
+        "levels": [
+            "entire_atmosphere_(considered_as_a_single_layer)"
+        ]
+    },
+    "REFC": {
+        "name": "Composite reflectivity",
+        "levels": [
+            "entire_atmosphere"
+        ]
+    },
+    "REFD": {
+        "name": "Reflectivity",
+        "levels": [
+            "1000_m_above_ground",
+            "2_hybrid_level",
+            "1_hybrid_level",
+            "4000_m_above_ground"
+        ]
+    },
+    "RH": {
+        "name": "Relative Humidity",
+        "levels": [
+            "60-30_mb_above_ground",
+            "900_mb",
+            "70_mb",
+            "700_mb",
+            "450_mb",
+            "425_mb",
+            "650_mb",
+            "0.72-0.94_sigma_layer",
+            "300_mb",
+            "0.33-1_sigma_layer",
+            "350_mb",
+            "entire_atmosphere_(considered_as_a_single_layer)",
+            "0C_isotherm",
+            "200_mb",
+            "0.2_mb",
+            "1000_mb",
+            "0.02_mb",
+            "175_mb",
+            "800_mb",
+            "825_mb",
+            "0.04_mb",
+            "775_mb",
+            "highest_tropospheric_freezing_level",
+            "0.4_mb",
+            "100_mb",
+            "50_mb",
+            "475_mb",
+            "975_mb",
+            "925_mb",
+            "375_mb",
+            "250_mb",
+            "7_mb",
+            "10_mb",
+            "0.44-0.72_sigma_layer",
+            "1_mb",
+            "90-60_mb_above_ground",
+            "0.01_mb",
+            "150_mb",
+            "750_mb",
+            "120-90_mb_above_ground",
+            "30-0_mb_above_ground",
+            "325_mb",
+            "150-120_mb_above_ground",
+            "30_mb",
+            "0.995_sigma_level",
+            "625_mb",
+            "500_mb",
+            "400_mb",
+            "0.7_mb",
+            "950_mb",
+            "600_mb",
+            "575_mb",
+            "550_mb",
+            "2_mb",
+            "225_mb",
+            "125_mb",
+            "180-150_mb_above_ground",
+            "525_mb",
+            "875_mb",
+            "275_mb",
+            "20_mb",
+            "3_mb",
+            "725_mb",
+            "5_mb",
+            "0.1_mb",
+            "2_m_above_ground",
+            "850_mb",
+            "0.07_mb",
+            "0.44-1_sigma_layer",
+            "675_mb"
+        ]
+    },
+    "RWMR": {
+        "name": "Rain Mixing Ratio",
+        "levels": [
+            "900_mb",
+            "70_mb",
+            "700_mb",
+            "450_mb",
+            "425_mb",
+            "650_mb",
+            "300_mb",
+            "350_mb",
+            "200_mb",
+            "1000_mb",
+            "800_mb",
+            "825_mb",
+            "775_mb",
+            "100_mb",
+            "50_mb",
+            "975_mb",
+            "475_mb",
+            "925_mb",
+            "375_mb",
+            "250_mb",
+            "150_mb",
+            "750_mb",
+            "325_mb",
+            "625_mb",
+            "500_mb",
+            "400_mb",
+            "950_mb",
+            "600_mb",
+            "575_mb",
+            "550_mb",
+            "225_mb",
+            "125_mb",
+            "525_mb",
+            "875_mb",
+            "275_mb",
+            "725_mb",
+            "1_hybrid_level",
+            "850_mb",
+            "175_mb",
+            "675_mb"
+        ]
+    },
+    "SFCR": {
+        "name": "Surface roughness",
+        "levels": [
+            "surface"
+        ]
+    },
+    "SHTFL": {
+        "name": "Sensible Heat Net Flux",
+        "levels": [
+            "surface"
+        ]
+    },
+    "SNMR": {
+        "name": "Snow Mixing Ratio",
+        "levels": [
+            "900_mb",
+            "70_mb",
+            "700_mb",
+            "450_mb",
+            "425_mb",
+            "650_mb",
+            "300_mb",
+            "350_mb",
+            "200_mb",
+            "1000_mb",
+            "800_mb",
+            "825_mb",
+            "775_mb",
+            "100_mb",
+            "50_mb",
+            "975_mb",
+            "475_mb",
+            "925_mb",
+            "375_mb",
+            "250_mb",
+            "150_mb",
+            "750_mb",
+            "325_mb",
+            "625_mb",
+            "500_mb",
+            "400_mb",
+            "950_mb",
+            "600_mb",
+            "575_mb",
+            "550_mb",
+            "225_mb",
+            "125_mb",
+            "525_mb",
+            "875_mb",
+            "275_mb",
+            "725_mb",
+            "1_hybrid_level",
+            "850_mb",
+            "175_mb",
+            "675_mb"
+        ]
+    },
+    "SNOD": {
+        "name": "Snow Depth",
+        "levels": [
+            "surface"
+        ]
+    },
+    "SOILL": {
+        "name": "Liquid volumetric soil moisture (non-frozen)",
+        "levels": [
+            "1-2_m_below_ground",
+            "0-0.1_m_below_ground",
+            "0.1-0.4_m_below_ground",
+            "0.4-1_m_below_ground"
+        ]
+    },
+    "SOILW": {
+        "name": "Volumetric Soil Moisture Content",
+        "levels": [
+            "1-2_m_below_ground",
+            "0-0.1_m_below_ground",
+            "0.1-0.4_m_below_ground",
+            "0.4-1_m_below_ground"
+        ]
+    },
+    "SOTYP": {
+        "name": "Soil type (as in Zobler)",
+        "levels": [
+            "surface"
+        ]
+    },
+    "SPFH": {
+        "name": "Specific Humidity",
+        "levels": [
+            "60-30_mb_above_ground",
+            "900_mb",
+            "70_mb",
+            "700_mb",
+            "450_mb",
+            "425_mb",
+            "650_mb",
+            "300_mb",
+            "80_m_above_ground",
+            "350_mb",
+            "200_mb",
+            "0.2_mb",
+            "1000_mb",
+            "0.02_mb",
+            "800_mb",
+            "40_mb",
+            "825_mb",
+            "0.04_mb",
+            "775_mb",
+            "0.4_mb",
+            "100_mb",
+            "50_mb",
+            "15_mb",
+            "475_mb",
+            "975_mb",
+            "925_mb",
+            "375_mb",
+            "250_mb",
+            "7_mb",
+            "10_mb",
+            "1_mb",
+            "90-60_mb_above_ground",
+            "0.01_mb",
+            "150_mb",
+            "750_mb",
+            "120-90_mb_above_ground",
+            "30-0_mb_above_ground",
+            "325_mb",
+            "150-120_mb_above_ground",
+            "30_mb",
+            "625_mb",
+            "500_mb",
+            "400_mb",
+            "0.7_mb",
+            "950_mb",
+            "600_mb",
+            "575_mb",
+            "550_mb",
+            "2_mb",
+            "225_mb",
+            "125_mb",
+            "180-150_mb_above_ground",
+            "525_mb",
+            "875_mb",
+            "275_mb",
+            "20_mb",
+            "3_mb",
+            "725_mb",
+            "5_mb",
+            "1_hybrid_level",
+            "2_m_above_ground",
+            "850_mb",
+            "0.1_mb",
+            "0.07_mb",
+            "175_mb",
+            "675_mb"
+        ]
+    },
+    "SUNSD": {
+        "name": "Sunshine Duration",
+        "levels": [
+            "surface"
+        ]
+    },
+    "TCDC": {
+        "name": "Total Cloud Cover",
+        "levels": [
+            "900_mb",
+            "70_mb",
+            "boundary_layer_cloud_layer",
+            "700_mb",
+            "450_mb",
+            "425_mb",
+            "650_mb",
+            "300_mb",
+            "350_mb",
+            "200_mb",
+            "1000_mb",
+            "800_mb",
+            "825_mb",
+            "entire_atmosphere",
+            "middle_cloud_layer",
+            "775_mb",
+            "100_mb",
+            "50_mb",
+            "high_cloud_layer",
+            "975_mb",
+            "475_mb",
+            "925_mb",
+            "375_mb",
+            "250_mb",
+            "150_mb",
+            "750_mb",
+            "325_mb",
+            "625_mb",
+            "500_mb",
+            "400_mb",
+            "convective_cloud_layer",
+            "950_mb",
+            "600_mb",
+            "575_mb",
+            "550_mb",
+            "225_mb",
+            "125_mb",
+            "low_cloud_layer",
+            "525_mb",
+            "875_mb",
+            "275_mb",
+            "725_mb",
+            "850_mb",
+            "175_mb",
+            "675_mb"
+        ]
+    },
+    "TMAX": {
+        "name": "Maximum Temperature",
+        "levels": [
+            "2_m_above_ground"
+        ]
+    },
+    "TMIN": {
+        "name": "Minimum Temperature",
+        "levels": [
+            "2_m_above_ground"
+        ]
+    },
+    "TMP": {
+        "name": "Temperature",
+        "levels": [
+            "900_mb",
+            "100_m_above_ground",
+            "700_mb",
+            "650_mb",
+            "300_mb",
+            "80_m_above_ground",
+            "3658_m_above_mean_sea_level",
+            "305_m_above_mean_sea_level",
+            "1000_mb",
+            "0.04_mb",
+            "775_mb",
+            "max_wind",
+            "2743_m_above_mean_sea_level",
+            "100_mb",
+            "surface",
+            "475_mb",
+            "925_mb",
+            "tropopause",
+            "250_mb",
+            "1_mb",
+            "90-60_mb_above_ground",
+            "0.01_mb",
+            "750_mb",
+            "325_mb",
+            "625_mb",
+            "950_mb",
+            "610_m_above_mean_sea_level",
+            "550_mb",
+            "2_mb",
+            "225_mb",
+            "125_mb",
+            "275_mb",
+            "875_mb",
+            "3_mb",
+            "725_mb",
+            "PV=-2e-06_(Km^2/kg/s)_surface",
+            "1_hybrid_level",
+            "2_m_above_ground",
+            "850_mb",
+            "0.07_mb",
+            "175_mb",
+            "180-150_mb_above_ground",
+            "60-30_mb_above_ground",
+            "70_mb",
+            "457_m_above_mean_sea_level",
+            "450_mb",
+            "425_mb",
+            "PV=2e-06_(Km^2/kg/s)_surface",
+            "4572_m_above_mean_sea_level",
+            "1829_m_above_mean_sea_level",
+            "350_mb",
+            "200_mb",
+            "0.2_mb",
+            "0.02_mb",
+            "800_mb",
+            "40_mb",
+            "825_mb",
+            "0.4_mb",
+            "50_mb",
+            "15_mb",
+            "975_mb",
+            "375_mb",
+            "7_mb",
+            "10_mb",
+            "150_mb",
+            "120-90_mb_above_ground",
+            "30-0_mb_above_ground",
+            "30_mb",
+            "150-120_mb_above_ground",
+            "0.995_sigma_level",
+            "500_mb",
+            "400_mb",
+            "0.7_mb",
+            "600_mb",
+            "575_mb",
+            "914_m_above_mean_sea_level",
+            "525_mb",
+            "20_mb",
+            "5_mb",
+            "0.1_mb",
+            "675_mb"
+        ]
+    },
+    "TOZNE": {
+        "name": "Total ozone",
+        "levels": [
+            "entire_atmosphere_(considered_as_a_single_layer)"
+        ]
+    },
+    "TSOIL": {
+        "name": "Soil Temperaure",
+        "levels": [
+            "1-2_m_below_ground",
+            "0-0.1_m_below_ground",
+            "0.1-0.4_m_below_ground",
+            "0.4-1_m_below_ground"
+        ]
+    },
+    "UFLX": {
+        "name": "Momentum flux, u component",
+        "levels": [
+            "surface"
+        ]
+    },
+    "UGRD": {
+        "name": "U-Component of Wind",
+        "levels": [
+            "900_mb",
+            "100_m_above_ground",
+            "700_mb",
+            "650_mb",
+            "300_mb",
+            "80_m_above_ground",
+            "PV=-1.5e-06_(Km^2/kg/s)_surface",
+            "3658_m_above_mean_sea_level",
+            "305_m_above_mean_sea_level",
+            "1000_mb",
+            "PV=5e-07_(Km^2/kg/s)_surface",
+            "0.04_mb",
+            "775_mb",
+            "max_wind",
+            "2743_m_above_mean_sea_level",
+            "10_m_above_ground",
+            "100_mb",
+            "475_mb",
+            "925_mb",
+            "tropopause",
+            "PV=1e-06_(Km^2/kg/s)_surface",
+            "250_mb",
+            "1_mb",
+            "90-60_mb_above_ground",
+            "0.01_mb",
+            "50_m_above_ground",
+            "750_mb",
+            "325_mb",
+            "PV=-1e-06_(Km^2/kg/s)_surface",
+            "625_mb",
+            "950_mb",
+            "610_m_above_mean_sea_level",
+            "550_mb",
+            "2_mb",
+            "225_mb",
+            "125_mb",
+            "275_mb",
+            "875_mb",
+            "3_mb",
+            "725_mb",
+            "PV=-2e-06_(Km^2/kg/s)_surface",
+            "1_hybrid_level",
+            "850_mb",
+            "0.07_mb",
+            "PV=-5e-07_(Km^2/kg/s)_surface",
+            "175_mb",
+            "180-150_mb_above_ground",
+            "60-30_mb_above_ground",
+            "70_mb",
+            "457_m_above_mean_sea_level",
+            "450_mb",
+            "425_mb",
+            "PV=2e-06_(Km^2/kg/s)_surface",
+            "4572_m_above_mean_sea_level",
+            "30_m_above_ground",
+            "1829_m_above_mean_sea_level",
+            "350_mb",
+            "200_mb",
+            "PV=1.5e-06_(Km^2/kg/s)_surface",
+            "0.2_mb",
+            "0.02_mb",
+            "800_mb",
+            "40_mb",
+            "825_mb",
+            "0.4_mb",
+            "50_mb",
+            "15_mb",
+            "975_mb",
+            "375_mb",
+            "7_mb",
+            "10_mb",
+            "150_mb",
+            "20_m_above_ground",
+            "30-0_mb_above_ground",
+            "120-90_mb_above_ground",
+            "150-120_mb_above_ground",
+            "30_mb",
+            "0.7_mb",
+            "0.995_sigma_level",
+            "500_mb",
+            "400_mb",
+            "600_mb",
+            "575_mb",
+            "planetary_boundary_layer",
+            "914_m_above_mean_sea_level",
+            "525_mb",
+            "20_mb",
+            "5_mb",
+            "0.1_mb",
+            "40_m_above_ground",
+            "675_mb"
+        ]
+    },
+    "U-GWD": {
+        "name": "Zonal flux of gravity wave stress",
+        "levels": [
+            "surface"
+        ]
+    },
+    "ULWRF": {
+        "name": "Upward long wave rad. flux",
+        "levels": [
+            "top_of_atmosphere",
+            "surface"
+        ]
+    },
+    "USTM": {
+        "name": "u-component of storm motion",
+        "levels": [
+            "6000-0_m_above_ground"
+        ]
+    },
+    "USWRF": {
+        "name": "Upward short wave radiation flux",
+        "levels": [
+            "top_of_atmosphere",
+            "surface"
+        ]
+    },
+    "VEG": {
+        "name": "Vegetation",
+        "levels": [
+            "surface"
+        ]
+    },
+    "VFLX": {
+        "name": "Momentum flux, v component",
+        "levels": [
+            "surface"
+        ]
+    },
+    "VGRD": {
+        "name": "V-Component of Wind",
+        "levels": [
+            "900_mb",
+            "100_m_above_ground",
+            "700_mb",
+            "650_mb",
+            "300_mb",
+            "80_m_above_ground",
+            "PV=-1.5e-06_(Km^2/kg/s)_surface",
+            "3658_m_above_mean_sea_level",
+            "305_m_above_mean_sea_level",
+            "1000_mb",
+            "PV=5e-07_(Km^2/kg/s)_surface",
+            "0.04_mb",
+            "775_mb",
+            "max_wind",
+            "2743_m_above_mean_sea_level",
+            "10_m_above_ground",
+            "100_mb",
+            "475_mb",
+            "925_mb",
+            "tropopause",
+            "PV=1e-06_(Km^2/kg/s)_surface",
+            "250_mb",
+            "1_mb",
+            "90-60_mb_above_ground",
+            "0.01_mb",
+            "50_m_above_ground",
+            "750_mb",
+            "325_mb",
+            "PV=-1e-06_(Km^2/kg/s)_surface",
+            "625_mb",
+            "950_mb",
+            "610_m_above_mean_sea_level",
+            "550_mb",
+            "2_mb",
+            "225_mb",
+            "125_mb",
+            "275_mb",
+            "875_mb",
+            "3_mb",
+            "725_mb",
+            "PV=-2e-06_(Km^2/kg/s)_surface",
+            "1_hybrid_level",
+            "850_mb",
+            "0.07_mb",
+            "PV=-5e-07_(Km^2/kg/s)_surface",
+            "175_mb",
+            "180-150_mb_above_ground",
+            "60-30_mb_above_ground",
+            "70_mb",
+            "457_m_above_mean_sea_level",
+            "450_mb",
+            "425_mb",
+            "PV=2e-06_(Km^2/kg/s)_surface",
+            "4572_m_above_mean_sea_level",
+            "30_m_above_ground",
+            "1829_m_above_mean_sea_level",
+            "350_mb",
+            "200_mb",
+            "PV=1.5e-06_(Km^2/kg/s)_surface",
+            "0.2_mb",
+            "0.02_mb",
+            "800_mb",
+            "40_mb",
+            "825_mb",
+            "0.4_mb",
+            "50_mb",
+            "15_mb",
+            "975_mb",
+            "375_mb",
+            "7_mb",
+            "10_mb",
+            "150_mb",
+            "20_m_above_ground",
+            "30-0_mb_above_ground",
+            "120-90_mb_above_ground",
+            "150-120_mb_above_ground",
+            "30_mb",
+            "0.7_mb",
+            "0.995_sigma_level",
+            "500_mb",
+            "400_mb",
+            "600_mb",
+            "575_mb",
+            "planetary_boundary_layer",
+            "914_m_above_mean_sea_level",
+            "525_mb",
+            "20_mb",
+            "5_mb",
+            "0.1_mb",
+            "40_m_above_ground",
+            "675_mb"
+        ]
+    },
+    "V-GWD": {
+        "name": "Meridional flux of gravity wave stress",
+        "levels": [
+            "surface"
+        ]
+    },
+    "VIS": {
+        "name": "Visibility",
+        "levels": [
+            "surface"
+        ]
+    },
+    "VRATE": {
+        "name": "Ventilation Rate",
+        "levels": [
+            "planetary_boundary_layer"
+        ]
+    },
+    "VSTM": {
+        "name": "v-component of storm motion",
+        "levels": [
+            "6000-0_m_above_ground"
+        ]
+    },
+    "VVEL": {
+        "name": "Vertical velocity (pressure)",
+        "levels": [
+            "900_mb",
+            "70_mb",
+            "700_mb",
+            "450_mb",
+            "425_mb",
+            "650_mb",
+            "300_mb",
+            "350_mb",
+            "200_mb",
+            "0.2_mb",
+            "1000_mb",
+            "0.02_mb",
+            "800_mb",
+            "40_mb",
+            "825_mb",
+            "0.04_mb",
+            "775_mb",
+            "0.4_mb",
+            "100_mb",
+            "50_mb",
+            "15_mb",
+            "975_mb",
+            "475_mb",
+            "925_mb",
+            "375_mb",
+            "250_mb",
+            "7_mb",
+            "10_mb",
+            "1_mb",
+            "0.01_mb",
+            "150_mb",
+            "750_mb",
+            "325_mb",
+            "30_mb",
+            "625_mb",
+            "0.995_sigma_level",
+            "500_mb",
+            "400_mb",
+            "0.7_mb",
+            "950_mb",
+            "600_mb",
+            "575_mb",
+            "550_mb",
+            "2_mb",
+            "225_mb",
+            "125_mb",
+            "525_mb",
+            "875_mb",
+            "275_mb",
+            "20_mb",
+            "3_mb",
+            "725_mb",
+            "5_mb",
+            "0.1_mb",
+            "850_mb",
+            "0.07_mb",
+            "175_mb",
+            "675_mb"
+        ]
+    },
+    "VWSH": {
+        "name": "Vertical speed shear",
+        "levels": [
+            "PV=1.5e-06_(Km^2/kg/s)_surface",
+            "PV=1e-06_(Km^2/kg/s)_surface",
+            "PV=5e-07_(Km^2/kg/s)_surface",
+            "PV=2e-06_(Km^2/kg/s)_surface",
+            "PV=-2e-06_(Km^2/kg/s)_surface",
+            "PV=-1.5e-06_(Km^2/kg/s)_surface",
+            "PV=-1e-06_(Km^2/kg/s)_surface",
+            "PV=-5e-07_(Km^2/kg/s)_surface",
+            "tropopause"
+        ]
+    },
+    "WATR": {
+        "name": "Water runoff",
+        "levels": [
+            "surface"
+        ]
+    },
+    "WEASD": {
+        "name": "Water equiv. of accum. snow depth",
+        "levels": [
+            "surface"
+        ]
+    },
+    "WILT": {
+        "name": "Wilting point",
+        "levels": [
+            "surface"
+        ]
+    }
+}
