@@ -12,7 +12,7 @@ class RequestInfo(NamedTuple):
 
 class RequestClient(httpx.Client):
     def __init__(self):
-        super().__init__()
+        super().__init__(timeout=httpx.Timeout(20))
 
     def SendRequest(self, method: Literal['get', 'post'], **kwargs) -> RequestInfo:
         """
