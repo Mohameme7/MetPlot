@@ -1,21 +1,25 @@
 import time
 import concurrent.futures
 from MetPlot.Downloader.RequestHandler import RequestClient
-
+from multiprocessing import Queue
 
 class Downloader(RequestClient):
-    def __init__(self, links: list):
+    def __init__(self, links: list, queue : Queue = None):
         super().__init__()
         self.links = links
+        self.queue = queue
 
     def retrievedata(self, url) -> bytes:
         """Sends a request to get file data and returns it
          :param url: url to retrieve data from
-         :returns received data from the request
+         :param queue : Queue to track progress from if needed
+         :returns : received data from the request
          """
         req = self.SendRequest('get', url=url)
 
         if req.success:
+             if self.queue:
+                 self.queue.put_nowait('.')
              return req.response_text
         else:
             return b""
