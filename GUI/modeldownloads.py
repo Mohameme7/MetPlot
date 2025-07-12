@@ -47,7 +47,8 @@ def GFS_Load(download_button, top_entry, bottom_entry, left_entry, right_entry, 
 
         information = nomads.get_available_runs()
         most_recent_run = next(iter(information))
-        if run_date == most_recent_run and run_time == information[most_recent_run][0]:
+
+        if run_date == most_recent_run.strip('.gfs') and run_time == information[most_recent_run][0]:
             hours = nomads.get_forecast_hours()
 
         else:
