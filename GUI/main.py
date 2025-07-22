@@ -1,3 +1,7 @@
+import multiprocessing
+
+
+
 import json
 import os
 import logging
@@ -6,13 +10,12 @@ import subprocess
 import requests
 import webview
 from nicegui import ui, app
-from GUI.modeldownloads import GFS_Load
-
+from modeldownloads import GFS_Load, GEM_Load
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 app.title = 'MetPlot'
-CoordsHTML = open('templates/CoordsMAP.html').read()
+CoordsHTML = open('./templates/CoordsMAP.html').read()
 content = requests.get('https://nomads.ncep.noaa.gov/gribfilter.php?ds=gfs_0p25').content
 top_entry = None
 bottom_entry = None
@@ -40,7 +43,8 @@ def global_navbar():
                 'color: white; text-decoration: none; font-size: 16px; text-transform: uppercase; transition: color 0.3s ease, transform 0.3s ease;')
             ui.link('Settings', '/settings').style(
                 'color: white; text-decoration: none; font-size: 16px; text-transform: uppercase; transition: color 0.3s ease, transform 0.3s ease;')
-
+            #ui.link('RadarToCDF', '/radartocdf').style(
+            #    'color: white; text-decoration: none; font-size: 16px; text-transform: uppercase; transition: color 0.3s ease, transform 0.3s ease;')
 
 
 def file_read(file):
@@ -68,7 +72,7 @@ def model_load(variables_file : str, levels_file : str, model : str):
     if model =='GFS':
      GFS_Load(download_button, top_entry, bottom_entry, left_entry, right_entry, temp_elements, content)
     else:
-        ui.notify("Functionality not implemented for models other than GFS")
+        GEM_Load(download_button, temp_elements)
 
 
     variables = file_read(variables_file)
@@ -168,7 +172,7 @@ def downloader():
     ui.add_body_html(CoordsHTML)
 
 async def set_panoply_path():
-    file = await app.native.main_window.create_file_dialog(dialog_type=webview.OPEN_DIALOG  )
+    file = await app.native.main_window.create_file_dialog(dialog_type=webview.OPEN_DIALOG)
     if file:
      subprocess.run(['setx', 'PANOPLY_PATH', file[0]], shell=True)
      ui.notify("Set Panoply Path")
@@ -189,4 +193,5 @@ def settings_page():
           ui.label("Panoply Path is not set yet.")
 
 
-ui.run(native=True, window_size=(1600, 900), favicon='⛈️', title='MetPlot')
+
+ui.run(native=True,  window_size=(1600, 900), favicon='⛈️', title='MetPlot')

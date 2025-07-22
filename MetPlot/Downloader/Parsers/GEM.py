@@ -29,7 +29,7 @@ class GEM(ModelParse):
         runs = [a.get('href').strip('/') for a in soup.find_all('a') if is_run(a.get('href'))]
         return runs
 
-    def get_forecast_hours(self, run=None) -> list:
+    def get_forecast_hours(self, run) -> list:
         """
 
         :param run: Desired run to get forecast hours for
@@ -67,4 +67,4 @@ class GEM(ModelParse):
          return f"{GEM.BASEURL}/{run}/{hour}/CMC_glb_{variable}_{typeoflevel}_{level}_latlon.15x.15_{utctime}{run}_P{hour}.grib2"
 
 
-
+    

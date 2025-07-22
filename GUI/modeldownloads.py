@@ -56,7 +56,8 @@ def GFS_Load(download_button, top_entry, bottom_entry, left_entry, right_entry, 
 
         async def confirm_selection():
             if int(to_hour.value) > int(from_hour.value):
-                selected_hours = list(range(int(from_hour.value), int(to_hour.value) + 1))
+                selected_hours = [h for h in hours if int(from_hour.value) <= h <= int(to_hour.value)]
+                print(selected_hours)
                 selected_vars = [cb.text for cb in ElementFilter(kind=ui.checkbox, marker='Variable') if cb.value]
                 selected_levels = [cb._markers[1] for cb in ElementFilter(kind=ui.checkbox, marker='Level') if cb.value]
                 queue = Manager().Queue()
@@ -128,6 +129,7 @@ def GFS_Load(download_button, top_entry, bottom_entry, left_entry, right_entry, 
         runs = ui.select(options=[''])
         run_dates.on_value_change(lambda: runs.set_options(nomads.get_available_runs().get(run_dates.value)))
         generated_elements.extend([run_dates, runs])
+
         download_button.on_click(lambda: Download(run_dates.value.strip('.gfs'), runs.value))
 
 
@@ -137,21 +139,85 @@ def GEM_download(**kwargs):
     levels = kwargs.get('levels')
     variables = kwargs.get('variables')
     run_time = kwargs.get('run_time')
+    file_name = kwargs.get('file_name')
+    queue = kwargs.get('queue')
+
     for hour in hours:
         for level, variable in product(levels, variables):
             urls.append(GEM.create_url(hour, run_time, variable, 'ISBL', level))
-    download_object = Downloader(urls)
+    download_object = Downloader(urls, queue)
     downloaded_data = download_object.submitdownloads()
-    GribCreation(downloaded_data, 'gem.grib').merge_grib_files()
+    GribCreation(downloaded_data, file_name).merge_grib_files()
 
 
-def GEM_Load(download_button, generated_elements):
-    raise NotImplementedError
-    ###
+def GEM_Load(download_button : ui.button, generated_elements):
     GEM_Parse = GEM()
+    async def Download(run_time):
+        file = await app.native.main_window.create_file_dialog(dialog_type=webview.SAVE_DIALOG)
+        hours = GEM_Parse.get_forecast_hours(run_time)
+        async def confirm_selection():
+            if int(to_hour.value) > int(from_hour.value):
+                selected_hours = [h for h in hours if int(from_hour.value) <= int(h) <= int(to_hour.value)]
+                print(selected_hours)
+                selected_vars = [cb.text for cb in ElementFilter(kind=ui.checkbox, marker='Variable') if cb.value]
+                selected_levels = [cb._markers[1] for cb in ElementFilter(kind=ui.checkbox, marker='Level') if cb.value]
+                queue = Manager().Queue()
+
+                count = 0
+
+                count_lock = threading.Lock()
+
+                def count_handler(q):
+                    nonlocal count
+                    while True:
+                            q.get()
+                            with count_lock:
+                                count += 1
+                                prgrbar.set_value(count/len(hours))
+                counter_thread = threading.Thread(target=count_handler, args=(queue,), daemon=True)
+                counter_thread.start()
+                prgrbar = ui.linear_progress(value=0)
+
+
+                await run.cpu_bound(
+                    GEM_download,
+                    hours=selected_hours,
+                    run_time=run_time,
+                    levels=selected_levels,
+                    variables=selected_vars,
+                    file_name = file,
+                    queue=queue
+
+                )
+
+
+
+                dialog.clear()
+                with dialog, ui.card().style('padding: 20px;'):
+                    ui.label("Download has finished.")
+                    if not os.getenv("PANOPLY_PATH"):
+
+                        ui.button("Exit", on_click=dialog.close)
+                    else:
+                      ui.label("Panoply Detected, Would you like to open it?")
+
+                      grib_file = os.path.abspath(file)
+
+                      ui.button("Open With Panoply", on_click=lambda: (
+                        dialog.close(), subprocess.run(f'"{os.getenv("PANOPLY_PATH")}" "{grib_file}"', shell=True)))
+                      ui.button("Exit", on_click=dialog.close)
+            else:
+                ui.notify('Invalid range! "To" hour must be greater than "From" hour.', type='negative')
+
+        with (ui.dialog() as dialog, ui.card().style('padding: 20px;')):
+            ui.label('Select Forecast Hours Range').style('font-size: 16px; font-weight: bold;')
+
+            from_hour = ui.select(label='From Hour', options=hours)
+            to_hour = ui.select(label='To Hour', options=hours)
+            ui.button('Submit', on_click=confirm_selection
+                      ).style('margin-top: 10px;')
+        dialog.open()
     with ui.row():
         run_dates = ui.select(options=list(GEM_Parse.get_runs_hours().keys()))
-        runs = ui.select(options=[''])
-        run_dates.on_value_change(lambda: runs.set_options(GEM_Parse.get_runs_hours().get(run_dates.value)))
-        generated_elements.extend([run_dates, runs])
-        download_button.on_click(lambda: ui.notify("Test"))
+        generated_elements.extend([run_dates])
+        download_button.on_click(lambda: Download(run_dates.value))
