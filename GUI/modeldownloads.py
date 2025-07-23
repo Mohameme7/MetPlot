@@ -132,6 +132,19 @@ def GFS_Load(download_button, top_entry, bottom_entry, left_entry, right_entry, 
 
         download_button.on_click(lambda: Download(run_dates.value.strip('.gfs'), runs.value))
 
+def FilterGEM(level):
+   NonISBL = {
+        'SFC': ['0'],
+        'MSL': ['0'],
+        'TGL': ['2', '10'],
+        'NTAT': ['0'],
+        'DBLL': ['0'],
+        'PVU': ['1'],
+        'EATM' : ['0', '']
+    }
+   if level in NonISBL:
+       return level, NonISBL[level]
+   return 'ISBL', [level]
 
 def GEM_download(**kwargs):
     urls = []
@@ -144,7 +157,9 @@ def GEM_download(**kwargs):
 
     for hour in hours:
         for level, variable in product(levels, variables):
-            urls.append(GEM.create_url(hour, run_time, variable, 'ISBL', level))
+            typeoflvl, level_values  = FilterGEM(level)
+            for lv in level_values:
+             urls.append(GEM.create_url(hour, run_time, variable, typeoflvl, lv))
     download_object = Downloader(urls, queue)
     downloaded_data = download_object.submitdownloads()
     GribCreation(downloaded_data, file_name).merge_grib_files()
@@ -161,6 +176,13 @@ def GEM_Load(download_button : ui.button, generated_elements):
                 print(selected_hours)
                 selected_vars = [cb.text for cb in ElementFilter(kind=ui.checkbox, marker='Variable') if cb.value]
                 selected_levels = [cb._markers[1] for cb in ElementFilter(kind=ui.checkbox, marker='Level') if cb.value]
+                alllinkscount = 0
+                for hour in hours:
+                    for level, variable in product(selected_levels, selected_vars):
+                        typeoflvl, level_values = FilterGEM(level)
+                        for lv in level_values:
+                            alllinkscount += 1
+
                 queue = Manager().Queue()
 
                 count = 0
@@ -173,7 +195,7 @@ def GEM_Load(download_button : ui.button, generated_elements):
                             q.get()
                             with count_lock:
                                 count += 1
-                                prgrbar.set_value(count/len(hours))
+                                prgrbar.set_value(count/alllinkscount)
                 counter_thread = threading.Thread(target=count_handler, args=(queue,), daemon=True)
                 counter_thread.start()
                 prgrbar = ui.linear_progress(value=0)
