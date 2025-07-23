@@ -15,7 +15,9 @@ from modeldownloads import GFS_Load, GEM_Load
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 app.title = 'MetPlot'
-CoordsHTML = open('./templates/CoordsMAP.html').read()
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+template_path = os.path.join(BASE_DIR, 'templates', 'CoordsMAP.html')
+CoordsHTML = open(template_path).read()
 content = requests.get('https://nomads.ncep.noaa.gov/gribfilter.php?ds=gfs_0p25').content
 top_entry = None
 bottom_entry = None
@@ -53,6 +55,8 @@ def file_read(file):
             content = json.load(file)
         else:
             content = file.readlines()
+            content = [i.strip('\n') for i in content]
+
         file.close()
     return content
 
@@ -77,6 +81,7 @@ def model_load(variables_file : str, levels_file : str, model : str):
 
     variables = file_read(variables_file)
     level_data = file_read(levels_file)
+
     level_data = [(line.strip(), line.strip().replace("lev_", "").replace("_mb", "mb"))
                   for line in level_data]
 
@@ -99,13 +104,11 @@ def model_load(variables_file : str, levels_file : str, model : str):
     with ui.column().style('margin-top: 15px; padding: 10px;') as el:
         temp_elements.append(el)
 
-        chunk_size = max(10, len(level_data) // 20)
 
         ui.label('Vertical Levels').style('font-size: 14px;')
 
-        for i in range(5, len(level_data), chunk_size):
-            with ui.row().classes('flex-wrap').style('align-items: center; margin-bottom: -8px;'):
-                for original, formatted in level_data[i:i + chunk_size]:
+        with ui.row().classes('flex-wrap').style('align-items: center; margin-bottom: -8px;'):
+                for original, formatted in level_data   :
                     ui.checkbox(text=formatted).mark(f'Level {original}')
 
 
