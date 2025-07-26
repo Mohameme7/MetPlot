@@ -1,7 +1,3 @@
-import multiprocessing
-
-
-
 import json
 import os
 import logging
@@ -76,7 +72,7 @@ def model_load(variables_file : str, levels_file : str, model : str):
     if model =='GFS':
      GFS_Load(download_button, top_entry, bottom_entry, left_entry, right_entry, temp_elements, content)
     else:
-        GEM_Load(download_button, temp_elements)
+        GEM_Load(download_button, temp_elements, top_entry, bottom_entry, left_entry, right_entry)
 
 
     variables = file_read(variables_file)
