@@ -5,9 +5,8 @@ from PyInstaller.utils.hooks import collect_submodules, collect_data_files
 
 project_root = os.path.abspath(r"C:\Users\abdal\PycharmProjects\MetPlot")
 
-# Collect all hidden imports and data files from pyproj and nicegui
-hiddenimports = collect_submodules('pyproj')  # all pyproj submodules
-hiddenimports += collect_submodules('nicegui')  # (optional, just in case)
+hiddenimports = collect_submodules('pyproj') 
+hiddenimports += collect_submodules('nicegui')  
 
 datas = collect_data_files('nicegui') + collect_data_files('pyproj') + [
     (r'C:\Users\abdal\PycharmProjects\MetPlot\GUI\templates', 'templates')
