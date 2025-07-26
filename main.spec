@@ -12,6 +12,8 @@ hiddenimports += collect_submodules('nicegui')
 datas = collect_data_files('nicegui') + collect_data_files('pyproj') + [
     (str(project_root / 'GUI' / 'templates'), 'templates'),
     (str(project_root / 'GUI' / 'static'), 'static'),
+    (str(project_root / 'MetPlot' / 'wgrib' / 'wgrib2.exe'), 'MetPlot/wgrib')
+
 ]
 a = Analysis(
     [str(project_root / 'GUI' / 'main.py')],
