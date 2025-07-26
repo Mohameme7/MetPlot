@@ -3,8 +3,9 @@ import concurrent.futures
 from MetPlot.Downloader.RequestHandler import RequestClient
 from multiprocessing import Queue
 
+
 class Downloader(RequestClient):
-    def __init__(self, links: list, queue : Queue = None):
+    def __init__(self, links: list, queue: Queue = None):
         super().__init__()
         self.links = links
         self.queue = queue
@@ -16,12 +17,12 @@ class Downloader(RequestClient):
          :returns : received data from the request
          """
         req = self.SendRequest('get', url=url)
-
+        if self.queue:
+            self.queue.put_nowait('.')
         if req.success:
-             if self.queue:
-                 self.queue.put_nowait('.')
-             return req.response_text
+            return req.response_text
         else:
+
             return b""
 
     def submitdownloads(self):
