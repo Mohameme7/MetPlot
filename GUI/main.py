@@ -2,7 +2,8 @@ import json
 import os
 import logging
 import subprocess
-
+import sys
+from pathlib import Path
 import requests
 import webview
 from nicegui import ui, app
@@ -107,14 +108,21 @@ def model_load(variables_file : str, levels_file : str, model : str):
                 for original, formatted in level_data   :
                     ui.checkbox(text=formatted).mark(f'Level {original}')
 
+if hasattr(sys, '_MEIPASS'):
+    BASE_PATH = Path(sys._MEIPASS)
+else:
+    BASE_PATH = Path(__file__).parent
 
-MODELS = {'GFS': lambda : model_load('static/Variables/GFS/MERGED_PARAMS.json',
-                                     'static/Variables/GFS/VERTICAL_LEVELS.txt', 'GFS'),
+def abs_path(p):
+    return str(BASE_PATH / p)
 
-          'GEM' : lambda : model_load('static/Variables/GEM/MERGED_PARAMS.json',
-                                      'static/Variables/GEM/VERTICAL_LEVELS.txt', 'GEM')}
+MODELS = {
+    'GFS': lambda: model_load(abs_path('static/Variables/GFS/MERGED_PARAMS.json'),
+                             abs_path('static/Variables/GFS/VERTICAL_LEVELS.txt'), 'GFS'),
 
-
+    'GEM': lambda: model_load(abs_path('static/Variables/GEM/MERGED_PARAMS.json'),
+                             abs_path('static/Variables/GEM/VERTICAL_LEVELS.txt'), 'GEM'),
+}
 
 
 

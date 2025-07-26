@@ -1,20 +1,21 @@
 # -*- mode: python ; coding: utf-8 -*-
 
 import os
+from pathlib import Path
 from PyInstaller.utils.hooks import collect_submodules, collect_data_files
 
-project_root = os.path.abspath(r"C:\Users\abdal\PycharmProjects\MetPlot")
+project_root = Path(os.getcwd()).resolve()
 
-hiddenimports = collect_submodules('pyproj') 
-hiddenimports += collect_submodules('nicegui')  
+hiddenimports = collect_submodules('pyproj')
+hiddenimports += collect_submodules('nicegui')
 
 datas = collect_data_files('nicegui') + collect_data_files('pyproj') + [
-    (r'C:\Users\abdal\PycharmProjects\MetPlot\GUI\templates', 'templates')
+    (str(project_root / 'GUI' / 'templates'), 'templates'),
+    (str(project_root / 'GUI' / 'static'), 'static'),
 ]
-
 a = Analysis(
-    ['GUI\\main.py'],
-    pathex=[project_root],
+    [str(project_root / 'GUI' / 'main.py')],
+    pathex=[str(project_root)],
     binaries=[],
     datas=datas,
     hiddenimports=hiddenimports,
@@ -25,6 +26,7 @@ a = Analysis(
     noarchive=False,
     optimize=0,
 )
+
 pyz = PYZ(a.pure)
 
 exe = EXE(
@@ -44,6 +46,7 @@ exe = EXE(
     codesign_identity=None,
     entitlements_file=None,
 )
+
 coll = COLLECT(
     exe,
     a.binaries,
