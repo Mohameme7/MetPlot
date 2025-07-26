@@ -1,0 +1,41 @@
+package:
+  name: metplot
+  version: "0.1.0"
+
+source:
+  path: ../
+
+build:
+  noarch: python
+  script: "{{ PYTHON }} -m pip install . --no-deps -vv"
+
+requirements:
+  host:
+    - python
+    - pip
+    - setuptools
+    - numpy
+    - scipy
+    - matplotlib
+    - cartopy
+    - beautifulsoup4
+    - httpx
+    - requests
+  run:
+    - python
+    - numpy
+    - scipy
+    - matplotlib
+    - cartopy
+    - beautifulsoup4
+    - httpx
+    - requests
+
+test:
+  imports:
+    - MetPlot
+
+about:
+  home: https://github.com/mohameme7/metplot
+  license: MIT
+  summary: Meteorological plotting/downloading toolkit
