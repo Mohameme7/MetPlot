@@ -1,6 +1,19 @@
-# UNDER WORK
-This library is currently under work and it is in it's very early stages, I have made this repo public to just show the progress of making it, it is supposed to help download and plot meteorological data easily and more user-friendly than 
-other existing frameworks.
+# Description
+MetPlot is a library/tool that allows users to install meteorlogical data in a flexable way with various tools, and also there's a ready GUI App using it in the Repo that uses and abstracts its features.
+
+# Installation
+You can install it by Conda
+`conda install mohameme7::metplot`
+
+Or Build it by source:
+   `conda build recipe`
+   Then you can install it locally:
+   `conda install --use-local metplot`
+
+ And you can build the GUI to an executable From main.spec by:
+   - Install Pyinstaller `pip install pyinstaller`
+   - Then `pyinstaller main.spec`
+   - Then run main.exe at the dist generated folder and everything should work fine.
 
 # TODO
 - ~~Add Functionality for GEM Model~~
