@@ -1,6 +1,7 @@
 import os
 import tempfile
-
+import subprocess
+from pathlib import Path
 import pygrib
 
 
@@ -10,7 +11,7 @@ class GribCreation:
         self.FileName = FileName
         self.merge_grib_files()
 
-    def merge_grib_files(self) -> None:
+    def merge_grib_files(self) -> str:
         """Merge multiple GRIB data into one file."""
         with open(self.FileName, 'wb') as outfile:
             for i, grib_content in enumerate(self.Data):
@@ -24,4 +25,18 @@ class GribCreation:
                                 outfile.write(msg.tostring())
                         temp_file.close()
                         os.remove(temp_file.name)
+        return self.FileName
 
+
+
+def crop_coords(input_file, output_file, lat_min, lat_max, lon_min, lon_max):
+    wgrib2_path = (Path(__file__).parent.parent / "wgrib" / "wgrib2.exe")
+
+    cmd = [
+        str(wgrib2_path),
+        input_file,
+        "-small_grib", f"{lat_min}:{lat_max}", f"{lon_min}:{lon_max}",
+        output_file
+    ]
+
+    subprocess.run(cmd, check=True)
