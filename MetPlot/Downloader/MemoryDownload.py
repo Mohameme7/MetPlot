@@ -1,4 +1,3 @@
-import time
 import concurrent.futures
 from MetPlot.Downloader.RequestHandler import RequestClient
 from multiprocessing import Queue
@@ -10,7 +9,7 @@ class Downloader(RequestClient):
         self.links = links
         self.queue = queue
 
-    def retrievedata(self, url) -> bytes:
+    def retrieve_data(self, url) -> bytes:
         """Sends a request to get file data and returns it
          :param url: url to retrieve data from
          :param queue : Queue to track progress from if needed
@@ -25,7 +24,7 @@ class Downloader(RequestClient):
 
             return b""
 
-    def submitdownloads(self):
+    def submit_downloads(self):
         """Submit all links to download the data."""
         with concurrent.futures.ThreadPoolExecutor() as executor:
-            return list(executor.map(self.retrievedata, self.links))
+            return list(executor.map(self.retrieve_data, self.links))
