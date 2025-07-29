@@ -45,7 +45,7 @@ def GFS_download(**kwargs):
 
     download_object = Downloader(urls, queue=queue if queue else None)
 
-    downloaded_data = download_object.submitdownloads()
+    downloaded_data = download_object.submit_downloads()
     GribCreation(downloaded_data, filename).merge_grib_files()
 
 
@@ -69,7 +69,7 @@ def GFS_Load(download_button, top_entry, bottom_entry, left_entry, right_entry, 
 
         async def confirm_selection():
             if int(to_hour.value) > int(from_hour.value):
-                selected_hours = [h for h in hours if int(from_hour.value) <= h <= int(to_hour.value)]
+                selected_hours = [h for h in hours if int(from_hour.value) <= int(h) <= int(to_hour.value)]
                 print(selected_hours)
                 selected_vars = [cb.text for cb in ElementFilter(kind=ui.checkbox, marker='Variable') if cb.value]
                 selected_levels = [cb._markers[1] for cb in ElementFilter(kind=ui.checkbox, marker='Level') if cb.value]
@@ -85,7 +85,8 @@ def GFS_Load(download_button, top_entry, bottom_entry, left_entry, right_entry, 
                             q.get()
                             with count_lock:
                                 count += 1
-                                prgrbar.set_value(count/len(hours))
+                                prgrbar.set_value(count/len(selected_hours))
+
                 counter_thread = threading.Thread(target=count_handler, args=(queue,), daemon=True)
                 counter_thread.start()
                 prgrbar = ui.linear_progress(value=0)
@@ -160,8 +161,9 @@ def GEM_download(**kwargs):
             typeoflvl, level_values  = FilterGEM(level)
             for lv in level_values:
              urls.append(GEM.create_url(hour, run_time, variable, typeoflvl, lv))
+
     download_object = Downloader(urls, queue)
-    downloaded_data = download_object.submitdownloads()
+    downloaded_data = download_object.submit_downloads()
     GribCreation(downloaded_data, file_name).merge_grib_files()
     if subregion:
         crop_coords(
@@ -182,13 +184,13 @@ def GEM_Load(download_button : ui.button, generated_elements, top_entry, bottom_
         async def confirm_selection():
             if int(to_hour.value) > int(from_hour.value):
                 selected_hours = [h for h in hours if int(from_hour.value) <= int(h) <= int(to_hour.value)]
-                print(selected_hours)
                 selected_vars = [cb.text for cb in ElementFilter(kind=ui.checkbox, marker='Variable') if cb.value]
                 selected_levels = [cb._markers[1] for cb in ElementFilter(kind=ui.checkbox, marker='Level') if cb.value]
+
                 alllinkscount = sum(
-                    len(FilterGEM(level)[1])
-                    for level, variable in product(selected_levels, selected_vars)
-                    for hour in hours
+                     len(FilterGEM(level)[1])
+                     for hour in selected_hours
+                     for level, _ in product(selected_levels, selected_vars)
                 )
 
                 queue = Manager().Queue()
@@ -202,6 +204,7 @@ def GEM_Load(download_button : ui.button, generated_elements, top_entry, bottom_
                             with count_lock:
                                 count += 1
                                 prgrbar.set_value(count/alllinkscount)
+
                 counter_thread = threading.Thread(target=count_handler, args=(queue,), daemon=True)
                 counter_thread.start()
                 prgrbar = ui.linear_progress(value=0)
