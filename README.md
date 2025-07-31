@@ -14,6 +14,7 @@ Or Build it by source:
    - Install Pyinstaller `pip install pyinstaller`
    - Then `pyinstaller main.spec`
    - Then run main.exe at the dist generated folder and everything should work fine.
+   - # Note : For the GUI you must build MetPlot locally from the repo
 
 # TODO
 - ~~Add Functionality for GEM Model~~
