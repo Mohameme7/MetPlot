@@ -8,6 +8,8 @@ import requests
 import webview
 from nicegui import ui, app
 from modeldownloads import GFS_Load, GEM_Load
+from types import SimpleNamespace
+from MetPlot.utils.CMAPTest import PlotData
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
@@ -16,10 +18,7 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 template_path = os.path.join(BASE_DIR, 'templates', 'CoordsMAP.html')
 CoordsHTML = open(template_path).read()
 content = requests.get('https://nomads.ncep.noaa.gov/gribfilter.php?ds=gfs_0p25').content
-top_entry = None
-bottom_entry = None
-left_entry = None
-right_entry = None
+
 download_button : ui.button
 temp_elements = []
 
@@ -42,8 +41,8 @@ def global_navbar():
                 'color: white; text-decoration: none; font-size: 16px; text-transform: uppercase; transition: color 0.3s ease, transform 0.3s ease;')
             ui.link('Settings', '/settings').style(
                 'color: white; text-decoration: none; font-size: 16px; text-transform: uppercase; transition: color 0.3s ease, transform 0.3s ease;')
-            #ui.link('RadarToCDF', '/radartocdf').style(
-            #    'color: white; text-decoration: none; font-size: 16px; text-transform: uppercase; transition: color 0.3s ease, transform 0.3s ease;')
+            ui.link('ColormapTest', '/colormaptest').style(
+                'color: white; text-decoration: none; font-size: 16px; text-transform: uppercase; transition: color 0.3s ease, transform 0.3s ease;')
 
 
 def file_read(file):
@@ -125,12 +124,19 @@ MODELS = {
 }
 
 
+def update_bounding_box_from_inputs():
+    try:
+        top = float(top_entry.value)
+        bottom = float(bottom_entry.value)
+        left = float(left_entry.value)
+        right = float(right_entry.value)
 
+        ui.run_javascript(f'''
+            updateBoundingBoxFromInputs({top}, {bottom}, {left}, {right});
+        ''')
 
-
-
-
-
+    except ValueError:
+        ui.notify('Please enter valid coordinates.')
 @ui.page('/')
 def main():
     global_navbar()
@@ -142,12 +148,13 @@ def main():
 @ui.page('/download')
 def downloader():
     global_navbar()
+    global download_button
+
     ui.select(label='Model', options=[option for option in MODELS],
               on_change=
               lambda model: MODELS[model.value]()).style('margin-top:100px;')
 
     with ui.row().style("gap: 10px; margin-top: 20px; padding: 10px;"):
-        global top_entry, bottom_entry, left_entry, right_entry, download_button
 
         for label in ['Top Latitude', 'Bottom Latitude', 'Left Longitude', 'Right Longitude']:
             with ui.column():
@@ -156,27 +163,80 @@ def downloader():
                 globals()[f"{label.split()[0].lower()}_entry"] = entry
 
         with ui.column():
-          download_button= ui.button("Download").style(
+          download_button = ui.button("Download").style(
               'margin-top:50px;'
           )
 
 
 
-    def update_bounding_box_from_inputs():
-        try:
-            top = float(top_entry.value)
-            bottom = float(bottom_entry.value)
-            left = float(left_entry.value)
-            right = float(right_entry.value)
 
-            ui.run_javascript(f'''
-                updateBoundingBoxFromInputs({top}, {bottom}, {left}, {right});
-            ''')
-
-        except ValueError:
-            ui.notify('Please enter valid coordinates.')
 
     ui.add_body_html(CoordsHTML)
+
+async def file_select_open():
+    file = await app.native.main_window.create_file_dialog(dialog_type=webview.OPEN_DIALOG)
+    return file if file else None
+async def save_plot(fig):
+    file = await app.native.main_window.create_file_dialog(dialog_type=webview.SAVE_DIALOG  )
+    if file:
+
+            fig.savefig(file, dpi=200)
+
+@ui.page('/colormaptest')
+def color_map_test():
+    global_navbar()
+    ui.add_body_html(CoordsHTML)
+    with ui.row().style("gap: 10px; margin-top: 80px; padding: 10px;"):
+
+        for label in ['Top Latitude', 'Bottom Latitude', 'Left Longitude', 'Right Longitude']:
+            with ui.column():
+                ui.label(label)
+                entry = ui.input(on_change=lambda: update_bounding_box_from_inputs())
+                globals()[f"{label.split()[0].lower()}_entry"] = entry
+    CMAP = SimpleNamespace(text=None)
+
+    async def type_selector(value):
+        nonlocal CMAP
+        if value.value=='By CPT File':
+            file = await file_select_open()
+
+            if file:
+                CMAP.text = file[0]
+
+        else:
+            with (ui.dialog() as dialog, ui.card().style('padding: 20px;')):
+               cmap_entry = ui.input(label='Enter CMAP')
+               def set() : CMAP.text = cmap_entry.value
+
+               ui.button('Submit', on_click=lambda e: (set(), dialog.close()))
+            dialog.open()
+    with ui.column().style("gap: 10px; margin-top: 40px; padding: 10px;"):
+            ui.select(['By CPT File', 'By Name'],on_change= lambda value : type_selector(value))
+            ui.label("Current CMAP : None").bind_text_from(CMAP)
+            with ui.row().style('margin-top:40px'):
+             matplotlib_plot = ui.matplotlib(figsize=(8, 8))
+             with matplotlib_plot.figure as fig:
+                 pass
+
+             def plot_action():
+
+                 fig.clear()
+                 fig.set_constrained_layout(True)
+                 if all([top_entry.value, left_entry.value, right_entry.value, bottom_entry.value]):
+                     subregion = [int(float(top_entry.value)), int(float(right_entry.value)),
+                                  int(float(left_entry.value)), int(float(bottom_entry.value))]
+                     PlotData(str(CMAP.text),*subregion, fig=fig)
+                 else:
+                     PlotData(str(CMAP.text), fig=fig)
+                 fig.canvas.draw()
+
+                 matplotlib_plot.update()
+                 save_butt.enable()
+
+             with ui.column():
+                ui.button("Plot", on_click=plot_action)
+                save_butt = ui.button("Save", on_click=lambda:save_plot(fig))
+                save_butt.disable()
 
 async def set_panoply_path():
     file = await app.native.main_window.create_file_dialog(dialog_type=webview.OPEN_DIALOG)
