@@ -57,6 +57,8 @@ def GFS_Load(download_button, top_entry, bottom_entry, left_entry, right_entry, 
 
     async def Download(run_date, run_time):
         file = await app.native.main_window.create_file_dialog(dialog_type=webview.SAVE_DIALOG)
+        if isinstance(file, tuple):
+            file = file[0]
 
         information = nomads.get_available_runs()
         most_recent_run = next(iter(information))
@@ -180,6 +182,10 @@ def GEM_Load(download_button : ui.button, generated_elements, top_entry, bottom_
     GEM_Parse = GEM()
     async def Download(run_time):
         file = await app.native.main_window.create_file_dialog(dialog_type=webview.SAVE_DIALOG)
+        if isinstance(file, tuple):
+            file = file[0]
+
+
         hours = GEM_Parse.get_forecast_hours(run_time)
         async def confirm_selection():
             if int(to_hour.value) > int(from_hour.value):

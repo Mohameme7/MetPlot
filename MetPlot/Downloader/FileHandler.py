@@ -1,4 +1,5 @@
 import os
+import sys
 import tempfile
 import subprocess
 from pathlib import Path
@@ -28,9 +29,12 @@ class GribCreation:
         return self.FileName
 
 
-
 def crop_coords(input_file, output_file, lat_min, lat_max, lon_min, lon_max):
-    wgrib2_path = (Path(__file__).parent.parent / "wgrib" / "wgrib2.exe")
+    base_dir = Path(__file__).parent.parent / "wgrib"
+    if sys.platform == "win32":
+        wgrib2_path = base_dir / "wgrib2.exe"
+    else:
+        wgrib2_path = base_dir / "wgrib2"
 
     cmd = [
         str(wgrib2_path),

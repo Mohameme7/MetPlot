@@ -35,6 +35,6 @@ setup(
         "Development Status :: 3 - Alpha"
     ],
     package_data={
-        'MetPlot.wgrib': ['*.dll', '*.exe'],
+        'MetPlot.wgrib': ['*.dll', '*.exe', 'wgrib2'],
     },
 )
