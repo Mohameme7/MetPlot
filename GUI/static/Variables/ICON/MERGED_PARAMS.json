@@ -1,0 +1,222 @@
+{
+    "alb_rad": {
+        "name": "Albedo of radiation at surface",
+        "levels": ["typeOfLevel : single-level"]
+    },
+    "alhfl_s": {
+        "name": "Latent heat flux at surface",
+        "levels": ["typeOfLevel : single-level"]
+    },
+    "ashfl_s": {
+        "name": "Sensible heat flux at surface",
+        "levels": ["typeOfLevel : single-level"]
+    },
+    "asob_s": {
+        "name": "Surface net solar radiation",
+        "levels": ["typeOfLevel : single-level"]
+    },
+    "asob_s_cs": {
+        "name": "Surface net solar radiation clear-sky",
+        "levels": ["typeOfLevel : single-level"]
+    },
+    "asob_t": {
+        "name": "Top of atmosphere net solar radiation",
+        "levels": ["typeOfLevel : single-level"]
+    },
+    "aswdifd_s": {
+        "name": "Diffuse downward shortwave radiation at surface",
+        "levels": ["typeOfLevel : single-level"]
+    },
+    "aswdifu_s": {
+        "name": "Upward shortwave radiation at surface",
+        "levels": ["typeOfLevel : single-level"]
+    },
+    "aswdir_s": {
+        "name": "Direct shortwave radiation at surface",
+        "levels": ["typeOfLevel : single-level"]
+    },
+    "athb_s": {
+        "name": "Air temperature at surface",
+        "levels": ["typeOfLevel : single-level"]
+    },
+    "athb_t": {
+        "name": "Air temperature at top",
+        "levels": ["typeOfLevel : single-level"]
+    },
+    "aumfl_s": {
+        "name": "Upward moisture flux at surface",
+        "levels": ["typeOfLevel : single-level"]
+    },
+    "avmfl_s": {
+        "name": "Vertically integrated moisture flux at surface",
+        "levels": ["typeOfLevel : single-level"]
+    },
+    "c_t_lk": {
+        "name": "Lake temperature",
+        "levels": ["typeOfLevel : single-level"]
+    },
+    "cape_con": {
+        "name": "Convective Available Potential Energy (CAPE)",
+        "levels": ["typeOfLevel : single-level"]
+    },
+    "cape_ml": {
+        "name": "Mixed-layer CAPE",
+        "levels": ["typeOfLevel : single-level"]
+    },
+    "clc": {
+        "name": "Total cloud cover",
+        "levels": ["typeOfLevel : single-level"]
+    },
+    "clch": {
+        "name": "High-level cloud cover",
+        "levels": ["typeOfLevel : single-level"]
+    },
+    "clcl": {
+        "name": "Low-level cloud cover",
+        "levels": ["typeOfLevel : single-level"]
+    },
+    "clcm": {
+        "name": "Medium-level cloud cover",
+        "levels": ["typeOfLevel : single-level"]
+    },
+    "clct": {
+        "name": "Total cloud cover",
+        "levels": ["typeOfLevel : single-level"]
+    },
+    "clct_mod": {
+        "name": "Modified total cloud cover",
+        "levels": ["typeOfLevel : single-level"]
+    },
+    "cldepth": {
+        "name": "Cloud depth",
+        "levels": ["typeOfLevel : single-level"]
+    },
+    "fi": {
+        "name": "Forecast index / pressure levels",
+        "levels": ["100", "1000", "150", "200", "250", "30", "300", "400", "50", "500", "600", "70", "700", "800", "850", "900", "925", "950", "typeOfLevel : pressure-level"]
+    },
+    "relhum": {
+        "name": "Relative humidity",
+        "levels": ["100", "1000", "150", "200", "250", "30", "300", "400", "50", "500", "600", "70", "700", "800", "850", "900", "925", "950", "typeOfLevel : pressure-level"]
+    },
+    "t": {
+        "name": "Air temperature",
+        "levels": ["100", "1000", "150", "200", "250", "30", "300", "400", "50", "500", "600", "70", "700", "800", "850", "900", "925", "950", "typeOfLevel : pressure-level"]
+    },
+    "u": {
+        "name": "Zonal wind component",
+        "levels": ["100", "1000", "150", "200", "250", "30", "300", "400", "50", "500", "600", "70", "700", "800", "850", "900", "925", "950", "typeOfLevel : pressure-level"]
+    },
+    "v": {
+        "name": "Meridional wind component",
+        "levels": ["100", "1000", "150", "200", "250", "30", "300", "400", "50", "500", "600", "70", "700", "800", "850", "900", "925", "950", "typeOfLevel : pressure-level"]
+    },
+    "t_2m": {
+        "name": "Air temperature at 2 meters",
+        "levels": ["typeOfLevel : single-level"]
+    },
+    "t_bot_lk": {
+        "name": "Bottom lake temperature",
+        "levels": ["typeOfLevel : single-level"]
+    },
+    "t_g": {
+        "name": "Ground temperature",
+        "levels": ["typeOfLevel : single-level"]
+    },
+    "t_ice": {
+        "name": "Ice temperature",
+        "levels": ["typeOfLevel : single-level"]
+    },
+    "t_mnw_lk": {
+        "name": "Mean lake water temperature",
+        "levels": ["typeOfLevel : single-level"]
+    },
+    "t_s": {
+        "name": "Soil surface temperature",
+        "levels": ["typeOfLevel : single-level"]
+    },
+    "t_snow": {
+        "name": "Snow temperature",
+        "levels": ["typeOfLevel : single-level"]
+    },
+    "t_so": {
+        "name": "Soil temperature at various depths",
+        "levels": ["typeOfLevel : single-level"]
+    },
+    "t_wml_lk": {
+        "name": "Water mixed layer temperature (lake)",
+        "levels": ["typeOfLevel : single-level"]
+    },
+    "tch": {
+        "name": "Temperature at canopy height",
+        "levels": ["typeOfLevel : single-level"]
+    },
+    "tcm": {
+        "name": "Temperature at canopy mean level",
+        "levels": ["typeOfLevel : single-level"]
+    },
+    "td_2m": {
+        "name": "Dew point temperature at 2 meters",
+        "levels": ["typeOfLevel : single-level"]
+    },
+    "tke": {
+        "name": "Turbulent kinetic energy",
+        "levels": ["typeOfLevel : single-level"]
+    },
+    "tmax_2m": {
+        "name": "Maximum temperature at 2 meters",
+        "levels": ["typeOfLevel : single-level"]
+    },
+    "tmin_2m": {
+        "name": "Minimum temperature at 2 meters",
+        "levels": ["typeOfLevel : single-level"]
+    },
+    "tot_prec": {
+        "name": "Total precipitation",
+        "levels": ["typeOfLevel : single-level"]
+    },
+    "tqc": {
+        "name": "Cloud water mixing ratio",
+        "levels": ["typeOfLevel : single-level"]
+    },
+    "tqi": {
+        "name": "Cloud ice mixing ratio",
+        "levels": ["typeOfLevel : single-level"]
+    },
+    "u_10m": {
+        "name": "Zonal wind at 10 meters",
+        "levels": ["typeOfLevel : single-level"]
+    },
+    "v_10m": {
+        "name": "Meridional wind at 10 meters",
+        "levels": ["typeOfLevel : single-level"]
+    },
+    "w": {
+        "name": "Vertical velocity",
+        "levels": ["typeOfLevel : single-level"]
+    },
+    "w_i": {
+        "name": "Vertical ice velocity",
+        "levels": ["typeOfLevel : single-level"]
+    },
+    "w_snow": {
+        "name": "Snow vertical velocity",
+        "levels": ["typeOfLevel : single-level"]
+    },
+    "w_so": {
+        "name": "Soil vertical velocity",
+        "levels": ["typeOfLevel : single-level"]
+    },
+    "w_so_ice": {
+        "name": "Soil ice vertical velocity",
+        "levels": ["typeOfLevel : single-level"]
+    },
+    "ww": {
+        "name": "Weather type code",
+        "levels": ["typeOfLevel : single-level"]
+    },
+    "z0": {
+        "name": "Roughness length",
+        "levels": ["typeOfLevel : single-level"]
+    }
+}
