@@ -3,14 +3,19 @@ import os
 import logging
 import subprocess
 import sys
+sys.path.insert(0, os.path.dirname(__file__))
 from pathlib import Path
 import requests
 import webview
 from nicegui import ui, app
-from modeldownloads import GFS_Load, GEM_Load
+from modeldownloads import GFS_Load, GEM_Load, Icon_load
 from types import SimpleNamespace
 from MetPlot.utils.CMAPTest import PlotData
+import multiprocessing
+from MetPlot.utils.colorgen import ColorToolApp
+import threading
 
+multiprocessing.set_start_method("spawn", force=True)   
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 app.title = 'MetPlot'
@@ -43,7 +48,7 @@ def global_navbar():
                 'color: white; text-decoration: none; font-size: 16px; text-transform: uppercase; transition: color 0.3s ease, transform 0.3s ease;')
             ui.link('ColormapTest', '/colormaptest').style(
                 'color: white; text-decoration: none; font-size: 16px; text-transform: uppercase; transition: color 0.3s ease, transform 0.3s ease;')
-
+            ui.button('CPT_App',on_click=lambda:threading.Thread(target=ColorToolApp).start(), color="#1a1a1d")
 
 def file_read(file):
     with open(file) as file:
@@ -64,15 +69,22 @@ def update_coordinates(top: float, bottom: float, left: float, right: float):
     left_entry.value = str(left)
     right_entry.value = str(right)
 
+model_loads = {
+    "GFS" : lambda : GFS_Load(download_button, top_entry, bottom_entry, left_entry, right_entry, temp_elements, content),
+    "GEM" : lambda : GEM_Load(download_button, temp_elements, top_entry, bottom_entry, left_entry, right_entry),
+    "ICON" : lambda : Icon_load(temp_elements, top_entry, bottom_entry, left_entry, right_entry)
+
+}
 def model_load(variables_file : str, levels_file : str, model : str):
     while temp_elements:
         element = temp_elements.pop()
         element.delete()
+    if model in model_loads:
+        model_loads[model]()
 
-    if model =='GFS':
-     GFS_Load(download_button, top_entry, bottom_entry, left_entry, right_entry, temp_elements, content)
-    else:
-        GEM_Load(download_button, temp_elements, top_entry, bottom_entry, left_entry, right_entry)
+
+
+
 
 
     variables = file_read(variables_file)
@@ -83,6 +95,7 @@ def model_load(variables_file : str, levels_file : str, model : str):
 
     with ui.column().style('margin-top: 15px; padding: 10px;') as el:
         temp_elements.append(el)
+
 
         ui.label('Variables').style('font-size: 14px;')
         keys = list(variables.keys())
@@ -121,6 +134,8 @@ MODELS = {
 
     'GEM': lambda: model_load(abs_path('static/Variables/GEM/MERGED_PARAMS.json'),
                              abs_path('static/Variables/GEM/VERTICAL_LEVELS.txt'), 'GEM'),
+    'ICON' : lambda : model_load(abs_path('static/Variables/ICON/MERGED_PARAMS.json'),
+                                 abs_path(abs_path('static/Variables/ICON/VERTICAL_LEVELS.txt')),'ICON')
 }
 
 
@@ -167,17 +182,14 @@ def downloader():
               'margin-top:50px;'
           )
 
-
-
-
-
     ui.add_body_html(CoordsHTML)
+
 
 async def file_select_open():
     file = await app.native.main_window.create_file_dialog(dialog_type=webview.OPEN_DIALOG)
     return file if file else None
 async def save_plot(fig):
-    file = await app.native.main_window.create_file_dialog(dialog_type=webview.SAVE_DIALOG  )
+    file = await app.native.main_window.create_file_dialog(dialog_type=webview.SAVE_DIALOG)
     if file:
 
             fig.savefig(file, dpi=200)
@@ -238,6 +250,7 @@ def color_map_test():
                 save_butt = ui.button("Save", on_click=lambda:save_plot(fig))
                 save_butt.disable()
 
+
 async def set_panoply_path():
     file = await app.native.main_window.create_file_dialog(dialog_type=webview.OPEN_DIALOG)
     if file:
@@ -258,6 +271,7 @@ def settings_page():
         ui.label(f"Panoply Path is set : {os.getenv('PANOPLY_PATH')}")
       else:
           ui.label("Panoply Path is not set yet.")
+
 
 
 
