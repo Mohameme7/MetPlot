@@ -72,7 +72,7 @@ def update_coordinates(top: float, bottom: float, left: float, right: float):
 model_loads = {
     "GFS" : lambda : GFS_Load(download_button, top_entry, bottom_entry, left_entry, right_entry, temp_elements, content),
     "GEM" : lambda : GEM_Load(download_button, temp_elements, top_entry, bottom_entry, left_entry, right_entry),
-    "ICON" : lambda : Icon_load(temp_elements, top_entry, bottom_entry, left_entry, right_entry)
+    "ICON" : lambda : Icon_load(download_button,temp_elements, top_entry, bottom_entry, left_entry, right_entry)
 
 }
 def model_load(variables_file : str, levels_file : str, model : str):
