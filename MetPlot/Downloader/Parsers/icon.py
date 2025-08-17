@@ -49,9 +49,9 @@ class IconParse(ModelParse):
         request.raise_for_status()
         parser = BeautifulSoup(request.content, "html.parser")
 
-        yes = parser.find_all('a')
-        for thing in yes:
-          match = re.search(r'_\d{10}_(\d+)_', thing['href'])
+        parsed_a = parser.find_all('a')
+        for element in parsed_a:
+          match = re.search(r'_\d{10}_(\d+)_', element['href'])
           if match:
             yield match.group(1)
 
