@@ -3,14 +3,14 @@ MetPlot is a library/tool that allows users to install meteorlogical data in a f
 
 # Installation
 You can install it by Conda
-`pip install customtkinter pywebview nicegui`
+`pip install customtkinter pywebview==5.4 nicegui`
 `conda install mohameme7::metplot`
 
 
 Or Build it by source:
    
    `conda build recipe`
-   `pip install customtkinter pywebview nicegui`
+   `pip install customtkinter pywebview==5.4 nicegui`
    
    Then you can install it locally:
    `conda install --use-local metplot`
