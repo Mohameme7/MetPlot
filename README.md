@@ -20,4 +20,4 @@ Or Build it by source:
 - ~~Add Functionality for GEM Model~~
 - Add ECMWF Model
 - Create documentation for adding models and making it a simpler process
-- Adding a size estimation for the download files and ~~a progressbar~~
+- ~~Adding a size estimation for the downloaded files and a progressbar~~
