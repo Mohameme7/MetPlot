@@ -15,7 +15,7 @@ import multiprocessing
 from MetPlot.utils.colorgen import ColorToolApp
 import threading
 
-multiprocessing.set_start_method("spawn", force=True)   
+multiprocessing.set_start_method("spawn", force=True)
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 app.title = 'MetPlot'
@@ -72,7 +72,8 @@ def update_coordinates(top: float, bottom: float, left: float, right: float):
 model_loads = {
     "GFS" : lambda : GFS_Load(download_button, top_entry, bottom_entry, left_entry, right_entry, temp_elements, content),
     "GEM" : lambda : GEM_Load(download_button, temp_elements, top_entry, bottom_entry, left_entry, right_entry),
-    "ICON" : lambda : Icon_load(download_button,temp_elements, top_entry, bottom_entry, left_entry, right_entry)
+    "ICON" : lambda : Icon_load(download_button,temp_elements,file_read(abs_path('static/Variables/ICON/MERGED_PARAMS.json')), top_entry,
+                                bottom_entry, left_entry, right_entry)
 
 }
 def model_load(variables_file : str, levels_file : str, model : str):
@@ -135,7 +136,7 @@ MODELS = {
     'GEM': lambda: model_load(abs_path('static/Variables/GEM/MERGED_PARAMS.json'),
                              abs_path('static/Variables/GEM/VERTICAL_LEVELS.txt'), 'GEM'),
     'ICON' : lambda : model_load(abs_path('static/Variables/ICON/MERGED_PARAMS.json'),
-                                 abs_path(abs_path('static/Variables/ICON/VERTICAL_LEVELS.txt')),'ICON')
+                                 abs_path('static/Variables/ICON/VERTICAL_LEVELS.txt'),'ICON')
 }
 
 
@@ -274,5 +275,5 @@ def settings_page():
 
 
 
+ui.run(native=True, window_size=(1600, 900), favicon='⛈️', title='MetPlot')
 
-ui.run(native=True,  window_size=(1600, 900), favicon='⛈️', title='MetPlot')

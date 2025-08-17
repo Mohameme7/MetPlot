@@ -282,13 +282,13 @@ def Icon_download(**kwargs):
     GribCreation(grib_bytes_list, filename).merge_grib_files()
 
 
-def Icon_load(download_button,generated_elements, *args):
+def Icon_load(download_button,generated_elements,var_json, *args):
     Bus.clear_subscribers()
     for arg in args:
         arg.disable()
 
-    with open('static/Variables/ICON/MERGED_PARAMS.json', 'r') as file:
-        content = json.load(file)
+    content = var_json
+
 
 
 
@@ -296,6 +296,7 @@ def Icon_load(download_button,generated_elements, *args):
         file = await app.native.main_window.create_file_dialog(dialog_type=webview.SAVE_DIALOG)
         if isinstance(file, tuple):
             file = file[0]
+
         hours = list(model_parser.get_forecast_hours(run_time))
         async def confirm_selection():
             if int(to_hour.value) > int(from_hour.value):
