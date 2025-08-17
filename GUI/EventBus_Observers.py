@@ -8,6 +8,9 @@ class EventBus:
     def subscribe(self, event_type, handler):
         self._subscribers[event_type].append(handler)
 
+    def clear_subscribers(self):
+        self._subscribers.clear()
+
     async def publish(self, event_type, *args, **kwargs):
         for handler in self._subscribers[event_type]:
             if asyncio.iscoroutinefunction(handler):
