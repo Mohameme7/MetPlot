@@ -10,13 +10,12 @@ def is_run(run) -> bool:
 
 
 class GEM(ModelParse):
-    BASEURL = 'https://dd.weather.gc.ca/model_gem_global/15km/grib2/lat_lon'
+    BASEURL = 'https://dd.weather.gc.ca/today/model_gem_global/15km/grib2/lat_lon/'
 
     def __init__(self):
         self.requestclient = RequestClient()
         self.html = self.requestclient.SendRequest('get', url=GEM.BASEURL,
                                                    follow_redirects=True).response_text
-
 
 
     def get_available_runs(self) -> list:
@@ -60,6 +59,8 @@ class GEM(ModelParse):
             run_hours[run] = self.get_forecast_hours(run)
         return run_hours
 
+
+
     @staticmethod
     def create_url(hour, run, variable,typeoflevel, level) -> str:
          utctime = datetime.now(timezone.utc)
@@ -67,4 +68,4 @@ class GEM(ModelParse):
          return f"{GEM.BASEURL}/{run}/{hour}/CMC_glb_{variable}_{typeoflevel}_{level}_latlon.15x.15_{utctime}{run}_P{hour}.grib2"
 
 
-    
+
