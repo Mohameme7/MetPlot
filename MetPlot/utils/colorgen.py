@@ -5,7 +5,7 @@ from tkinter import colorchooser
 from tkinter.filedialog import asksaveasfilename
 from PIL import Image, ImageTk
 from MetPlot.utils.CMAPTest import PlotData
-
+import tkinter as tk
 
 class ColorToolApp(ctk.CTk):
     def __init__(self):
@@ -32,10 +32,10 @@ class ColorToolApp(ctk.CTk):
         self.title_label = ctk.CTkLabel(self, text="CPT Generator", font=ctk.CTkFont(size=16, weight="bold"))
         self.title_label.pack(pady=20)
 
-        self.gradient_preview = ctk.CTkCanvas(self, height=50, width=650, bg="white")
+        self.gradient_preview = tk.Canvas(self, height=50, width=650, bg="white")
         self.gradient_preview.pack(padx=20, pady=20)
 
-        self.color_inputs_frame = ctk.CTkFrame(self)
+        self.color_inputs_frame = tk.Frame(self)
         self.color_inputs_frame.pack(side=ctk.RIGHT, padx=20, pady=20)
 
         self.save_button = ctk.CTkButton(self, text="Save As CPT", command=self.__export_cpt_with_name)
@@ -55,6 +55,7 @@ class ColorToolApp(ctk.CTk):
 
         self.TestCMAP = ctk.CTkButton(self, text="Test Colormap", command=self.genmap)
         self.TestCMAP.pack(side=ctk.TOP, padx=10, anchor="w")
+        self.protocol("WM_DELETE_WINDOW", self.on_close)
 
     def SaveAsVAR(self):
         """Saves the CPT as a string and can be called with __str__, e.g., print(ColorClass)"""
@@ -73,7 +74,7 @@ class ColorToolApp(ctk.CTk):
     def __update_gradient(self):
         self.gradient_preview.delete("all")
         self.color_inputs_frame.destroy()
-        self.color_inputs_frame = ctk.CTkFrame(self)
+        self.color_inputs_frame = tk.Frame(self)
         self.color_inputs_frame.pack(pady=20)
 
         img = Image.new("RGB", (650, 50))
@@ -85,9 +86,11 @@ class ColorToolApp(ctk.CTk):
                 pixels[i, j] = color
 
         self.gradient_img = ImageTk.PhotoImage(img)
-        self.gradient_preview.create_image(0, 0, anchor=ctk.NW, image=self.gradient_img)
+        self.gradient_preview.create_image(0, 0, anchor=tk.NW, image=self.gradient_img)
+
         for i, color in enumerate(self.colors):
             self.__create_color_stop(i, color["color"], color["position"])
+
 
     def __create_color_stop(self, index, color, position):
         x_position = position * 6.5
@@ -143,6 +146,9 @@ class ColorToolApp(ctk.CTk):
             self.colors.append(new_color)
             self.colors.sort(key=lambda x: x['position'])
             self.__update_gradient()
+    def on_close(self):
+        self.quit()
+        self.destroy()
 
     def __change_color(self, index):
         color_code = colorchooser.askcolor(title="Choose color")[1]
@@ -171,8 +177,11 @@ class ColorToolApp(ctk.CTk):
     def drag_color_stop(self, event):
         if self.dragging_color_index is not None:
             x = event.x
-            new_position = max(0, min(100, x / 6.5))
+            new_position = (x / 6.5)
+            new_position = max(0, min(100, new_position))
+
             self.colors[self.dragging_color_index]['position'] = new_position
+            self.colors.sort(key=lambda x: x['position'])
             self.__update_gradient()
 
     def __stop_drag(self, event=None):
@@ -198,5 +207,5 @@ class ColorToolApp(ctk.CTk):
             cpt_content += f"{current_color['position']} {current_rgb[0]} {current_rgb[1]} {current_rgb[2]} {next_color['position']} {next_rgb[0]} {next_rgb[1]} {next_rgb[2]}\n"
         return cpt_content
 
-
-ColorToolApp()
+if __name__ == "__main__":
+ ColorToolApp()
