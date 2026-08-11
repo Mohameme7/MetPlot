@@ -3,18 +3,20 @@ import os
 import logging
 import subprocess
 import sys
+
+from MetPlot.Downloader.Parsers.NomadsUtils import GFSUSE
+from MetPlot.Downloader.Parsers.icon import ICONUSE
+
 sys.path.insert(0, os.path.dirname(__file__))
 from pathlib import Path
 import requests
 import webview
 from nicegui import ui, app
-from modeldownloads import GFS_Load, GEM_Load, Icon_load
+from modeldownloads import Icon_load, load
+from MetPlot.Downloader.Parsers.GEM import GEMUSE
 from types import SimpleNamespace
 from MetPlot.utils.CMAPTest import PlotData
 import multiprocessing
-from MetPlot.utils.colorgen import ColorToolApp
-import threading
-
 multiprocessing.set_start_method("spawn", force=True)
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
@@ -23,7 +25,6 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 template_path = os.path.join(BASE_DIR, 'templates', 'CoordsMAP.html')
 CoordsHTML = open(template_path).read()
 content = requests.get('https://nomads.ncep.noaa.gov/gribfilter.php?ds=gfs_0p25').content
-
 download_button : ui.button
 temp_elements = []
 
@@ -48,7 +49,7 @@ def global_navbar():
                 'color: white; text-decoration: none; font-size: 16px; text-transform: uppercase; transition: color 0.3s ease, transform 0.3s ease;')
             ui.link('ColormapTest', '/colormaptest').style(
                 'color: white; text-decoration: none; font-size: 16px; text-transform: uppercase; transition: color 0.3s ease, transform 0.3s ease;')
-            ui.button('CPT_App',on_click=lambda:threading.Thread(target=ColorToolApp).start(), color="#1a1a1d")
+            ui.button('CPT_App',on_click=lambda:subprocess.Popen([sys.executable, "-m", "MetPlot.utils.colorgen"]), color="#1a1a1d")
 
 def file_read(file):
     with open(file) as file:
@@ -61,19 +62,43 @@ def file_read(file):
         file.close()
     return content
 
+
+
+class AppState:
+    def __init__(self):
+        self.inputs = {}
+
+state = AppState()
+
+
+def initialize_coords():
+        labels = ['Top Latitude', 'Bottom Latitude', 'Left Longitude', 'Right Longitude']
+
+        for label in labels:
+            with ui.column():
+                ui.label(label)
+                key = label.split()[0].lower()
+                state.inputs[key] = ui.input(on_change=lambda: update_bounding_box_from_inputs(
+                state.inputs))
+
 @app.get('/update_coordinates/{top}/{bottom}/{left}/{right}')
 def update_coordinates(top: float, bottom: float, left: float, right: float):
-    global top_entry, bottom_entry, left_entry, right_entry
-    top_entry.value = str(top)
-    bottom_entry.value = str(bottom)
-    left_entry.value = str(left)
-    right_entry.value = str(right)
+    state.inputs['top'].value = str(top)
+    state.inputs['bottom'].value = str(bottom)
+    state.inputs['left'].value = str(left)
+    state.inputs['right'].value = str(right)
 
 model_loads = {
-    "GFS" : lambda : GFS_Load(download_button, top_entry, bottom_entry, left_entry, right_entry, temp_elements, content),
-    "GEM" : lambda : GEM_Load(download_button, temp_elements, top_entry, bottom_entry, left_entry, right_entry),
-    "ICON" : lambda : Icon_load(download_button,temp_elements,file_read(abs_path('static/Variables/ICON/MERGED_PARAMS.json')), top_entry,
-                                bottom_entry, left_entry, right_entry)
+    "GFS" : lambda : load(GFSUSE(content),download_button, state.inputs['top'], state.inputs['bottom'],
+                    state.inputs['left'],
+                    state.inputs['right'], temp_elements),
+    "GEM" : lambda : load(GEMUSE(), download_button , state.inputs['top'], state.inputs['bottom'],
+                    state.inputs['left'],
+                    state.inputs['right'],temp_elements),
+    "ICON" : lambda : load(ICONUSE(file_read(abs_path('static/Variables/ICON/MERGED_PARAMS.json'))),download_button,
+                    state.inputs['top'], state.inputs['bottom'],
+                    state.inputs['left'],
+                    state.inputs['right'],temp_elements)
 
 }
 def model_load(variables_file : str, levels_file : str, model : str):
@@ -82,12 +107,6 @@ def model_load(variables_file : str, levels_file : str, model : str):
         element.delete()
     if model in model_loads:
         model_loads[model]()
-
-
-
-
-
-
     variables = file_read(variables_file)
     level_data = file_read(levels_file)
 
@@ -96,7 +115,6 @@ def model_load(variables_file : str, levels_file : str, model : str):
 
     with ui.column().style('margin-top: 15px; padding: 10px;') as el:
         temp_elements.append(el)
-
 
         ui.label('Variables').style('font-size: 14px;')
         keys = list(variables.keys())
@@ -140,18 +158,18 @@ MODELS = {
 }
 
 
-def update_bounding_box_from_inputs():
+def update_bounding_box_from_inputs(refs):
     try:
-        top = float(top_entry.value)
-        bottom = float(bottom_entry.value)
-        left = float(left_entry.value)
-        right = float(right_entry.value)
+        top = float(refs['top'].value)
+        bottom = float(refs['bottom'].value)
+        left = float(refs['left'].value)
+        right = float(refs['right'].value)
 
         ui.run_javascript(f'''
             updateBoundingBoxFromInputs({top}, {bottom}, {left}, {right});
         ''')
 
-    except ValueError:
+    except (ValueError, KeyError, AttributeError):
         ui.notify('Please enter valid coordinates.')
 @ui.page('/')
 def main():
@@ -169,16 +187,10 @@ def downloader():
     ui.select(label='Model', options=[option for option in MODELS],
               on_change=
               lambda model: MODELS[model.value]()).style('margin-top:100px;')
-
     with ui.row().style("gap: 10px; margin-top: 20px; padding: 10px;"):
+       initialize_coords()
 
-        for label in ['Top Latitude', 'Bottom Latitude', 'Left Longitude', 'Right Longitude']:
-            with ui.column():
-                ui.label(label)
-                entry = ui.input(on_change=lambda: update_bounding_box_from_inputs())
-                globals()[f"{label.split()[0].lower()}_entry"] = entry
-
-        with ui.column():
+    with ui.column():
           download_button = ui.button("Download").style(
               'margin-top:50px;'
           )
@@ -192,20 +204,15 @@ async def file_select_open():
 async def save_plot(fig):
     file = await app.native.main_window.create_file_dialog(dialog_type=webview.SAVE_DIALOG)
     if file:
-
-            fig.savefig(file, dpi=200)
+         fig.savefig(file, dpi=200)
 
 @ui.page('/colormaptest')
 def color_map_test():
     global_navbar()
-    ui.add_body_html(CoordsHTML)
     with ui.row().style("gap: 10px; margin-top: 80px; padding: 10px;"):
+     initialize_coords()
+    ui.add_body_html(CoordsHTML)
 
-        for label in ['Top Latitude', 'Bottom Latitude', 'Left Longitude', 'Right Longitude']:
-            with ui.column():
-                ui.label(label)
-                entry = ui.input(on_change=lambda: update_bounding_box_from_inputs())
-                globals()[f"{label.split()[0].lower()}_entry"] = entry
     CMAP = SimpleNamespace(text=None)
 
     async def type_selector(value):
@@ -235,9 +242,13 @@ def color_map_test():
 
                  fig.clear()
                  fig.set_constrained_layout(True)
-                 if all([top_entry.value, left_entry.value, right_entry.value, bottom_entry.value]):
-                     subregion = [int(float(top_entry.value)), int(float(right_entry.value)),
-                                  int(float(left_entry.value)), int(float(bottom_entry.value))]
+                 if all([
+                     top := int(float(state.inputs['top'].value or 0)),
+                     bottom := int(float(state.inputs['bottom'].value or 0)),
+                     left := int(float(state.inputs['left'].value or 0)),
+                     right := int(float(state.inputs['right'].value or 0)),
+                 ]):
+                     subregion = [top, right, left, bottom]
                      PlotData(str(CMAP.text),*subregion, fig=fig)
                  else:
                      PlotData(str(CMAP.text), fig=fig)
@@ -255,7 +266,8 @@ def color_map_test():
 async def set_panoply_path():
     file = await app.native.main_window.create_file_dialog(dialog_type=webview.OPEN_DIALOG)
     if file:
-     subprocess.run(['setx', 'PANOPLY_PATH', file[0]], shell=True)
+     tt = subprocess.run(['setx', 'PANOPLY_PATH', file[0]], shell=True)
+     print(tt, "tt")
      ui.notify("Set Panoply Path")
     else:
         return

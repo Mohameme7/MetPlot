@@ -66,5 +66,4 @@ def is_cpt_format(content: str) -> bool:
         range_line_pattern.match(line) or special_line_pattern.match(line)
         for line in lines
     )
-    # Honestly I haven't written this myself, Regex isn't very fun to do
 

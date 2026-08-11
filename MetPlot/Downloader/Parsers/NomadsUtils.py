@@ -1,11 +1,15 @@
 # The nomads NCEP Website has no real API,
 # And it has the worst request error handling ever and thus this forces me to parse its html content to get what I need
 import requests
-
+from MetPlot.Downloader.Parsers.ModelAbstract import WeatherModel, Selection
+from MetPlot.Downloader.size_fetch import fetch_sizes
+from MetPlot.utils.coordinates import bbox_percent
+from MetPlot.validators import validate_coords
 from MetPlot.Downloader.Parsers.BaseParse import ModelParse
 from bs4 import BeautifulSoup
 import urllib.parse
-from MetPlot.validators import validate_coords
+
+
 
 
 class NomadsParse(ModelParse):
@@ -17,10 +21,6 @@ class NomadsParse(ModelParse):
 
     def __init__(self, html=None):
         self.parser = BeautifulSoup(html,'html.parser')
-
-
-
-
 
     def CheckContent(self, text) -> bool:
         # Will be mainly used to parse errors, since nomads is a bit stupid and returns wrong status codes
@@ -36,7 +36,7 @@ class NomadsParse(ModelParse):
         :returns Tuple[List, List] : Dates, times
         """
 
-        dates = [span.text for span in self.parser.select('div.col_1 span.selectable span')]
+        dates = [span.text.strip('.gfs') for span in self.parser.select('div.col_1 span.selectable span')]
         times = [span.text for span in self.parser.select('div.col_2 span.selectable span')]
         runs = {}
         for date in dates:
@@ -46,20 +46,28 @@ class NomadsParse(ModelParse):
                 runs[date] = ['00', '06', '12', '18']  # If the date is anything before today return all runs
         return runs
 
-    def get_forecast_hours(self) -> list:
+    def get_forecast_hours(self,run, run_date) -> list:
         """Gets the Current Forecast hours of a run, eg: 06z has 120 hours till now
         :returns list: Available Forecast hours
         """
-        options = self.parser.select('#file_selector option')
 
-        forecast_hours = []
-        for option in options:
+        available_runs = self.get_available_runs()
+        most_recent_date = next(iter(available_runs))
+        if run_date == most_recent_date and run == available_runs[most_recent_date][0]:
+
+         options = self.parser.select('#file_selector option')
+         forecast_hours = []
+
+         for option in options:
             base_value = '.'.join(option['value'].split('.')[:-1])
 
             if base_value.endswith(self.FORECAST_FILE_ENDS_WITH):
                 fhour = option['value'].split('.')[-1][1:]
-                forecast_hours.append(fhour)
-        return forecast_hours
+                if fhour.isdigit():
+                  forecast_hours.append(int(fhour))
+         return forecast_hours
+
+        return list(range(1, 121, 1)) + list(range(123, 385, 3))
 
     @staticmethod
     def create_url(hour, run_date, run_time, variables: list , levels: list ,
@@ -84,7 +92,7 @@ class NomadsParse(ModelParse):
             urlparams[f'var_{var.strip()}'] = 'on'
 
         for level in levels:
-            #formattedlevel = self.__levelformat(level) # Not really compatible, disabled until further notice for now
+            #formattedlevel = NomadsParse.levelformat(level) # Not really compatible, disabled until further notice for now
             urlparams[level] = 'on'
 
         if subregion and len(subregion) == 4:
@@ -100,5 +108,25 @@ class NomadsParse(ModelParse):
         return url
 
 
+class GFSUSE(NomadsParse, WeatherModel):
+    def __init__(self,content):
+        super().__init__(content)
+    def build_urls(self, sel: Selection) -> list[str]:
+        urls = []
+        for hour in sel.hours:
+            urls.append(NomadsParse.create_url(hour,
+                                               sel.run_date, sel.run, sel.variables, sel.levels,
+                                               sel.subregion))
+        return urls
 
+    def estimate_size(self, urls, sel: Selection) -> int:
+        size = fetch_sizes(urls)
+        return size * bbox_percent(*sel.subregion) if sel.subregion else size
+
+
+    def run_options(self) -> dict:
+        return self.get_available_runs()
+
+    def forecast_hours(self, run_date, run) -> list:
+        return self.get_forecast_hours(run,run_date)
 
