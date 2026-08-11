@@ -53,7 +53,7 @@ class PlotData(PlotInfo, MapDataGenerator):
                                   botlat=botlat, smoothness=smoothness)
         self._external_fig = fig is not None
         if not fig:
-          self.fig, self.ax = plt.subplots(figsize=(12, 8 ), subplot_kw={'projection': ccrs.PlateCarree()},
+          self.fig, self.ax = plt.subplots(figsize=(8,6), subplot_kw={'projection': ccrs.PlateCarree()},
                                        dpi=dots_per_inch)
         else:
             self.fig = fig
