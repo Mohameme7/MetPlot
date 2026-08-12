@@ -12,7 +12,7 @@ from pathlib import Path
 import requests
 import webview
 from nicegui import ui, app
-from modeldownloads import Icon_load, load
+from modeldownloads import load
 from MetPlot.Downloader.Parsers.GEM import GEMUSE
 from types import SimpleNamespace
 from MetPlot.utils.CMAPTest import PlotData
@@ -267,7 +267,6 @@ async def set_panoply_path():
     file = await app.native.main_window.create_file_dialog(dialog_type=webview.OPEN_DIALOG)
     if file:
      tt = subprocess.run(['setx', 'PANOPLY_PATH', file[0]], shell=True)
-     print(tt, "tt")
      ui.notify("Set Panoply Path")
     else:
         return
