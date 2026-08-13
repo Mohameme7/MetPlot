@@ -12,7 +12,7 @@ import requests
 from datetime import datetime, timezone
 from typing import Literal
 from MetPlot.Downloader.Parsers.ModelAbstract import WeatherModel, Selection
-from MetPlot.Downloader.size_fetch import fetch_sizes
+from MetPlot.Downloader.misc import fetch_sizes
 from MetPlot.utils.coordinates import bbox_percent
 from MetPlot.validators import validate_coords
 

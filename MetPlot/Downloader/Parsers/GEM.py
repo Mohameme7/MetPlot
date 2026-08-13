@@ -1,14 +1,16 @@
+import json
 import os
-from itertools import product
 from bs4 import BeautifulSoup
 from MetPlot.Downloader.FileHandler import crop_coords
 from MetPlot.Downloader.Parsers.BaseParse import ModelParse
 from MetPlot.Downloader.RequestHandler import RequestClient
-from MetPlot.Downloader.size_fetch import fetch_sizes
+from MetPlot.Downloader.misc import fetch_sizes
 from MetPlot.Exceptions.parser_errors import InvalidRun
 from datetime import datetime, timezone
 from MetPlot.utils.coordinates import bbox_percent
 from MetPlot.Downloader.Parsers.ModelAbstract import WeatherModel, Selection
+from MetPlot.Downloader.misc import file_read
+from MetPlot.Variables import catalog_path
 
 
 def is_run(run) -> bool:
@@ -86,10 +88,24 @@ class GEM(ModelParse):
         )
 
 class GEMUSE(GEM, WeatherModel):
+    def __init__(self):
+        super().__init__()
+        with open(catalog_path('GEM', 'MERGED_PARAMS.json'), encoding='utf-8') as f:
+            self.info = json.load(f)
+
     def build_urls(self, sel: Selection) -> list[str]:
         urls = []
-        for hour, level, variable in product(sel.hours, sel.levels, sel.variables):
-            urls.append(self.create_url(hour=hour, run=sel.run, variable=variable, level=level))
+        for variable in sel.variables:
+            info = self.info[variable]
+            only_3h = set(info.get("only_3h", []))
+            for level in sel.levels:
+                if level not in info["levels"]:
+                    continue
+                for hour in sel.hours:
+                    if level in only_3h and int(hour) % 3 != 0:
+                        continue
+                    urls.append(self.create_url(hour=hour, run=sel.run,
+                                                variable=variable, level=level))
         return urls
 
     def estimate_size(self, urls, sel: Selection) -> int:

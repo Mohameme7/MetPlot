@@ -36,7 +36,7 @@ exe = EXE(
     a.scripts,
     [],
     exclude_binaries=True,
-    name='main',
+    name='MetPlot',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
@@ -47,6 +47,7 @@ exe = EXE(
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
+    onefile=True,
 )
 
 coll = COLLECT(

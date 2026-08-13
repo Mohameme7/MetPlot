@@ -1,0 +1,1130 @@
+{
+  "IcePellets-Accum1h": {
+    "name": "Ice Pellets Accumulation 1h",
+    "levels": [
+      "Sfc"
+    ]
+  },
+  "CAPE": {
+    "name": "CAPE",
+    "levels": [
+      "Sfc"
+    ],
+    "only_3h": [
+      "Sfc"
+    ]
+  },
+  "RelativeVorticity": {
+    "name": "Relative Vorticity",
+    "levels": [
+      "IsbL-0200",
+      "IsbL-0250",
+      "IsbL-0500",
+      "IsbL-0700",
+      "IsbL-0850"
+    ],
+    "only_3h": [
+      "IsbL-0200",
+      "IsbL-0250",
+      "IsbL-0500",
+      "IsbL-0700",
+      "IsbL-0850"
+    ]
+  },
+  "Rain-Accum": {
+    "name": "Rain Accumulation",
+    "levels": [
+      "Sfc"
+    ]
+  },
+  "PrecipRate": {
+    "name": "Precipitation Rate",
+    "levels": [
+      "Sfc"
+    ]
+  },
+  "PrecipType-Instant": {
+    "name": "Precipitation Type Instant",
+    "levels": [
+      "Sfc"
+    ],
+    "only_3h": [
+      "Sfc"
+    ]
+  },
+  "Thickness": {
+    "name": "Thickness",
+    "levels": [
+      "IsbL-0850to0700",
+      "IsbL-1000to0500",
+      "IsbL-1000to0850"
+    ],
+    "only_3h": [
+      "IsbL-0850to0700",
+      "IsbL-1000to0500",
+      "IsbL-1000to0850"
+    ]
+  },
+  "IcePellets-Accum": {
+    "name": "Ice Pellets Accumulation",
+    "levels": [
+      "Sfc"
+    ]
+  },
+  "Precip-Accum": {
+    "name": "Precipitation Accumulation",
+    "levels": [
+      "Sfc"
+    ]
+  },
+  "ShowalterIndex": {
+    "name": "Showalter Index",
+    "levels": [
+      "IsbL-0500"
+    ],
+    "only_3h": [
+      "IsbL-0500"
+    ]
+  },
+  "IcePellets-Accum3h": {
+    "name": "Ice Pellets Accumulation 3h",
+    "levels": [
+      "Sfc"
+    ],
+    "only_3h": [
+      "Sfc"
+    ]
+  },
+  "Albedo": {
+    "name": "Albedo",
+    "levels": [
+      "Sfc"
+    ]
+  },
+  "WindGust": {
+    "name": "Wind Gust",
+    "levels": [
+      "AGL-10m"
+    ]
+  },
+  "FreezingRain-Accum1h": {
+    "name": "Freezing Rain Accumulation 1h",
+    "levels": [
+      "Sfc"
+    ]
+  },
+  "FreezingRain-Accum": {
+    "name": "Freezing Rain Accumulation",
+    "levels": [
+      "Sfc"
+    ]
+  },
+  "DewPointDepression": {
+    "name": "Dew Point Depression",
+    "levels": [
+      "AGL-2m",
+      "IsbL-0010",
+      "IsbL-0020",
+      "IsbL-0030",
+      "IsbL-0050",
+      "IsbL-0100",
+      "IsbL-0150",
+      "IsbL-0175",
+      "IsbL-0200",
+      "IsbL-0225",
+      "IsbL-0250",
+      "IsbL-0275",
+      "IsbL-0300",
+      "IsbL-0350",
+      "IsbL-0400",
+      "IsbL-0450",
+      "IsbL-0500",
+      "IsbL-0550",
+      "IsbL-0600",
+      "IsbL-0650",
+      "IsbL-0700",
+      "IsbL-0750",
+      "IsbL-0800",
+      "IsbL-0850",
+      "IsbL-0875",
+      "IsbL-0900",
+      "IsbL-0925",
+      "IsbL-0950",
+      "IsbL-0970",
+      "IsbL-0985",
+      "IsbL-1000",
+      "IsbL-1015"
+    ],
+    "only_3h": [
+      "IsbL-0010",
+      "IsbL-0020",
+      "IsbL-0030",
+      "IsbL-0050",
+      "IsbL-0100",
+      "IsbL-0150",
+      "IsbL-0175",
+      "IsbL-0200",
+      "IsbL-0225",
+      "IsbL-0250",
+      "IsbL-0275",
+      "IsbL-0300",
+      "IsbL-0350",
+      "IsbL-0400",
+      "IsbL-0450",
+      "IsbL-0500",
+      "IsbL-0550",
+      "IsbL-0600",
+      "IsbL-0650",
+      "IsbL-0700",
+      "IsbL-0750",
+      "IsbL-0800",
+      "IsbL-0850",
+      "IsbL-0875",
+      "IsbL-0900",
+      "IsbL-0925",
+      "IsbL-0950",
+      "IsbL-0970",
+      "IsbL-0985",
+      "IsbL-1000",
+      "IsbL-1015"
+    ]
+  },
+  "WindSpeed": {
+    "name": "Wind Speed",
+    "levels": [
+      "AGL-10m",
+      "AGL-120m",
+      "AGL-40m",
+      "AGL-80m",
+      "IsbL-0001",
+      "IsbL-0005",
+      "IsbL-0010",
+      "IsbL-0020",
+      "IsbL-0030",
+      "IsbL-0050",
+      "IsbL-0100",
+      "IsbL-0150",
+      "IsbL-0175",
+      "IsbL-0200",
+      "IsbL-0225",
+      "IsbL-0250",
+      "IsbL-0275",
+      "IsbL-0300",
+      "IsbL-0350",
+      "IsbL-0400",
+      "IsbL-0450",
+      "IsbL-0500",
+      "IsbL-0550",
+      "IsbL-0600",
+      "IsbL-0650",
+      "IsbL-0700",
+      "IsbL-0750",
+      "IsbL-0800",
+      "IsbL-0850",
+      "IsbL-0875",
+      "IsbL-0900",
+      "IsbL-0925",
+      "IsbL-0950",
+      "IsbL-0970",
+      "IsbL-0985",
+      "IsbL-1000",
+      "IsbL-1015"
+    ],
+    "only_3h": [
+      "IsbL-0001",
+      "IsbL-0005",
+      "IsbL-0010",
+      "IsbL-0020",
+      "IsbL-0030",
+      "IsbL-0050",
+      "IsbL-0100",
+      "IsbL-0150",
+      "IsbL-0175",
+      "IsbL-0200",
+      "IsbL-0225",
+      "IsbL-0250",
+      "IsbL-0275",
+      "IsbL-0300",
+      "IsbL-0350",
+      "IsbL-0400",
+      "IsbL-0450",
+      "IsbL-0500",
+      "IsbL-0550",
+      "IsbL-0600",
+      "IsbL-0650",
+      "IsbL-0750",
+      "IsbL-0800",
+      "IsbL-0850",
+      "IsbL-0875",
+      "IsbL-0900",
+      "IsbL-0925",
+      "IsbL-0950",
+      "IsbL-0970",
+      "IsbL-0985",
+      "IsbL-1000",
+      "IsbL-1015"
+    ]
+  },
+  "RelativeHumidity": {
+    "name": "Relative Humidity",
+    "levels": [
+      "AGL-2m",
+      "IsbL-0010",
+      "IsbL-0020",
+      "IsbL-0030",
+      "IsbL-0050",
+      "IsbL-0100",
+      "IsbL-0150",
+      "IsbL-0175",
+      "IsbL-0200",
+      "IsbL-0225",
+      "IsbL-0250",
+      "IsbL-0275",
+      "IsbL-0300",
+      "IsbL-0350",
+      "IsbL-0400",
+      "IsbL-0450",
+      "IsbL-0500",
+      "IsbL-0550",
+      "IsbL-0600",
+      "IsbL-0650",
+      "IsbL-0700",
+      "IsbL-0750",
+      "IsbL-0800",
+      "IsbL-0850",
+      "IsbL-0875",
+      "IsbL-0900",
+      "IsbL-0925",
+      "IsbL-0950",
+      "IsbL-0970",
+      "IsbL-0985",
+      "IsbL-1000",
+      "IsbL-1015"
+    ],
+    "only_3h": [
+      "IsbL-0010",
+      "IsbL-0020",
+      "IsbL-0030",
+      "IsbL-0050",
+      "IsbL-0100",
+      "IsbL-0150",
+      "IsbL-0175",
+      "IsbL-0200",
+      "IsbL-0225",
+      "IsbL-0250",
+      "IsbL-0275",
+      "IsbL-0300",
+      "IsbL-0350",
+      "IsbL-0400",
+      "IsbL-0450",
+      "IsbL-0500",
+      "IsbL-0550",
+      "IsbL-0600",
+      "IsbL-0650",
+      "IsbL-0700",
+      "IsbL-0750",
+      "IsbL-0800",
+      "IsbL-0850",
+      "IsbL-0875",
+      "IsbL-0900",
+      "IsbL-0925",
+      "IsbL-0950",
+      "IsbL-0970",
+      "IsbL-0985",
+      "IsbL-1000",
+      "IsbL-1015"
+    ]
+  },
+  "UpwardLongwaveRadiationFlux": {
+    "name": "Upward Longwave Radiation Flux",
+    "levels": [
+      "NTAtm"
+    ]
+  },
+  "DewPoint": {
+    "name": "Dew Point",
+    "levels": [
+      "AGL-2m"
+    ]
+  },
+  "AbsoluteVorticity": {
+    "name": "Absolute Vorticity",
+    "levels": [
+      "IsbL-0200",
+      "IsbL-0250",
+      "IsbL-0500",
+      "IsbL-0700",
+      "IsbL-0850"
+    ],
+    "only_3h": [
+      "IsbL-0200",
+      "IsbL-0250",
+      "IsbL-0500",
+      "IsbL-0700",
+      "IsbL-0850"
+    ]
+  },
+  "CloudWater": {
+    "name": "Cloud Water",
+    "levels": [
+      "EAtm"
+    ],
+    "only_3h": [
+      "EAtm"
+    ]
+  },
+  "KIndex": {
+    "name": "K Index",
+    "levels": [
+      "Sfc"
+    ],
+    "only_3h": [
+      "Sfc"
+    ]
+  },
+  "VerticalVelocity": {
+    "name": "Vertical Velocity",
+    "levels": [
+      "IsbL-0200",
+      "IsbL-0250",
+      "IsbL-0500",
+      "IsbL-0600",
+      "IsbL-0700",
+      "IsbL-0850"
+    ],
+    "only_3h": [
+      "IsbL-0200",
+      "IsbL-0250",
+      "IsbL-0500",
+      "IsbL-0600",
+      "IsbL-0700",
+      "IsbL-0850"
+    ]
+  },
+  "LatentHeatNetFlux": {
+    "name": "Latent Heat Net Flux",
+    "levels": [
+      "Sfc"
+    ]
+  },
+  "WindChill": {
+    "name": "Wind Chill",
+    "levels": [
+      "Sfc"
+    ],
+    "only_3h": [
+      "Sfc"
+    ]
+  },
+  "WindU": {
+    "name": "Wind U-Component",
+    "levels": [
+      "AGL-10m",
+      "AGL-120m",
+      "AGL-40m",
+      "AGL-80m",
+      "IsbL-0001",
+      "IsbL-0005",
+      "IsbL-0010",
+      "IsbL-0020",
+      "IsbL-0030",
+      "IsbL-0050",
+      "IsbL-0100",
+      "IsbL-0150",
+      "IsbL-0175",
+      "IsbL-0200",
+      "IsbL-0225",
+      "IsbL-0250",
+      "IsbL-0275",
+      "IsbL-0300",
+      "IsbL-0350",
+      "IsbL-0400",
+      "IsbL-0450",
+      "IsbL-0500",
+      "IsbL-0550",
+      "IsbL-0600",
+      "IsbL-0650",
+      "IsbL-0700",
+      "IsbL-0750",
+      "IsbL-0800",
+      "IsbL-0850",
+      "IsbL-0875",
+      "IsbL-0900",
+      "IsbL-0925",
+      "IsbL-0950",
+      "IsbL-0970",
+      "IsbL-0985",
+      "IsbL-1000",
+      "IsbL-1015"
+    ],
+    "only_3h": [
+      "IsbL-0001",
+      "IsbL-0005",
+      "IsbL-0010",
+      "IsbL-0020",
+      "IsbL-0030",
+      "IsbL-0050",
+      "IsbL-0100",
+      "IsbL-0150",
+      "IsbL-0175",
+      "IsbL-0200",
+      "IsbL-0225",
+      "IsbL-0250",
+      "IsbL-0275",
+      "IsbL-0300",
+      "IsbL-0350",
+      "IsbL-0400",
+      "IsbL-0450",
+      "IsbL-0500",
+      "IsbL-0550",
+      "IsbL-0600",
+      "IsbL-0650",
+      "IsbL-0750",
+      "IsbL-0800",
+      "IsbL-0850",
+      "IsbL-0875",
+      "IsbL-0900",
+      "IsbL-0925",
+      "IsbL-0950",
+      "IsbL-0970",
+      "IsbL-0985",
+      "IsbL-1000",
+      "IsbL-1015"
+    ]
+  },
+  "HighLowPressure": {
+    "name": "High Low Pressure",
+    "levels": [
+      "MSL"
+    ]
+  },
+  "SoilTemp": {
+    "name": "Soil Temperature",
+    "levels": [
+      "DBS-0to10cm",
+      "Sfc"
+    ]
+  },
+  "PlanetaryBoundaryLayerHeight": {
+    "name": "Planetary Boundary Layer Height",
+    "levels": [
+      "Sfc"
+    ]
+  },
+  "Rain-Accum1h": {
+    "name": "Rain Accumulation 1h",
+    "levels": [
+      "Sfc"
+    ]
+  },
+  "WindDir": {
+    "name": "Wind Direction",
+    "levels": [
+      "AGL-10m",
+      "AGL-120m",
+      "AGL-40m",
+      "AGL-80m",
+      "IsbL-0001",
+      "IsbL-0005",
+      "IsbL-0010",
+      "IsbL-0020",
+      "IsbL-0030",
+      "IsbL-0050",
+      "IsbL-0100",
+      "IsbL-0150",
+      "IsbL-0175",
+      "IsbL-0200",
+      "IsbL-0225",
+      "IsbL-0250",
+      "IsbL-0275",
+      "IsbL-0300",
+      "IsbL-0350",
+      "IsbL-0400",
+      "IsbL-0450",
+      "IsbL-0500",
+      "IsbL-0550",
+      "IsbL-0600",
+      "IsbL-0650",
+      "IsbL-0700",
+      "IsbL-0750",
+      "IsbL-0800",
+      "IsbL-0850",
+      "IsbL-0875",
+      "IsbL-0900",
+      "IsbL-0925",
+      "IsbL-0950",
+      "IsbL-0970",
+      "IsbL-0985",
+      "IsbL-1000",
+      "IsbL-1015"
+    ],
+    "only_3h": [
+      "IsbL-0001",
+      "IsbL-0005",
+      "IsbL-0010",
+      "IsbL-0020",
+      "IsbL-0030",
+      "IsbL-0050",
+      "IsbL-0100",
+      "IsbL-0150",
+      "IsbL-0175",
+      "IsbL-0200",
+      "IsbL-0225",
+      "IsbL-0250",
+      "IsbL-0275",
+      "IsbL-0300",
+      "IsbL-0350",
+      "IsbL-0400",
+      "IsbL-0450",
+      "IsbL-0500",
+      "IsbL-0550",
+      "IsbL-0600",
+      "IsbL-0650",
+      "IsbL-0750",
+      "IsbL-0800",
+      "IsbL-0850",
+      "IsbL-0875",
+      "IsbL-0900",
+      "IsbL-0925",
+      "IsbL-0950",
+      "IsbL-0970",
+      "IsbL-0985",
+      "IsbL-1000",
+      "IsbL-1015"
+    ]
+  },
+  "ConvectivePrecip-Accum": {
+    "name": "Convective Precipitation Accumulation",
+    "levels": [
+      "Sfc"
+    ]
+  },
+  "WindGust-Max": {
+    "name": "Wind Gust Max",
+    "levels": [
+      "AGL-10m"
+    ]
+  },
+  "SnowDepth": {
+    "name": "Snow Depth",
+    "levels": [
+      "Sfc"
+    ]
+  },
+  "Humidex": {
+    "name": "Humidex",
+    "levels": [
+      "Sfc"
+    ],
+    "only_3h": [
+      "Sfc"
+    ]
+  },
+  "AirTemp": {
+    "name": "Air Temperature",
+    "levels": [
+      "AGL-120m",
+      "AGL-2m",
+      "AGL-40m",
+      "AGL-80m",
+      "IsbL-0001",
+      "IsbL-0005",
+      "IsbL-0010",
+      "IsbL-0020",
+      "IsbL-0030",
+      "IsbL-0050",
+      "IsbL-0100",
+      "IsbL-0150",
+      "IsbL-0175",
+      "IsbL-0200",
+      "IsbL-0225",
+      "IsbL-0250",
+      "IsbL-0275",
+      "IsbL-0300",
+      "IsbL-0350",
+      "IsbL-0400",
+      "IsbL-0450",
+      "IsbL-0500",
+      "IsbL-0550",
+      "IsbL-0600",
+      "IsbL-0650",
+      "IsbL-0700",
+      "IsbL-0750",
+      "IsbL-0800",
+      "IsbL-0850",
+      "IsbL-0875",
+      "IsbL-0900",
+      "IsbL-0925",
+      "IsbL-0950",
+      "IsbL-0970",
+      "IsbL-0985",
+      "IsbL-1000",
+      "IsbL-1015"
+    ],
+    "only_3h": [
+      "IsbL-0001",
+      "IsbL-0005",
+      "IsbL-0010",
+      "IsbL-0020",
+      "IsbL-0030",
+      "IsbL-0050",
+      "IsbL-0100",
+      "IsbL-0150",
+      "IsbL-0175",
+      "IsbL-0200",
+      "IsbL-0225",
+      "IsbL-0250",
+      "IsbL-0275",
+      "IsbL-0300",
+      "IsbL-0350",
+      "IsbL-0400",
+      "IsbL-0450",
+      "IsbL-0500",
+      "IsbL-0550",
+      "IsbL-0600",
+      "IsbL-0650",
+      "IsbL-0700",
+      "IsbL-0750",
+      "IsbL-0800",
+      "IsbL-0850",
+      "IsbL-0875",
+      "IsbL-0900",
+      "IsbL-0925",
+      "IsbL-0950",
+      "IsbL-0970",
+      "IsbL-0985",
+      "IsbL-1000",
+      "IsbL-1015"
+    ]
+  },
+  "Precip-Accum1h": {
+    "name": "Precipitation Accumulation 1h",
+    "levels": [
+      "Sfc"
+    ]
+  },
+  "O3MixingRatio": {
+    "name": "Ozone Mixing Ratio",
+    "levels": [
+      "Sfc"
+    ]
+  },
+  "TotalCloudCover": {
+    "name": "Total Cloud Cover",
+    "levels": [
+      "Sfc"
+    ]
+  },
+  "Snow-Accum1h": {
+    "name": "Snow Accumulation 1h",
+    "levels": [
+      "Sfc"
+    ]
+  },
+  "SensibleHeatNetFlux": {
+    "name": "Sensible Heat Net Flux",
+    "levels": [
+      "Sfc"
+    ]
+  },
+  "NetShortwaveRadiationFlux-Accum": {
+    "name": "Net Shortwave Radiation Flux Accumulation",
+    "levels": [
+      "Sfc"
+    ]
+  },
+  "DownwardLongwaveRadiationFlux-Accum": {
+    "name": "Downward Longwave Radiation Flux Accumulation",
+    "levels": [
+      "Sfc"
+    ]
+  },
+  "UVIndex-ClearSky": {
+    "name": "UV Index (Clear Sky)",
+    "levels": [
+      "Sfc"
+    ]
+  },
+  "DownwardShortwaveRadiationFlux-Accum": {
+    "name": "Downward Shortwave Radiation Flux Accumulation",
+    "levels": [
+      "NTAtm",
+      "Sfc"
+    ],
+    "only_3h": [
+      "NTAtm"
+    ]
+  },
+  "WindV": {
+    "name": "Wind V-Component",
+    "levels": [
+      "AGL-10m",
+      "AGL-120m",
+      "AGL-40m",
+      "AGL-80m",
+      "IsbL-0001",
+      "IsbL-0005",
+      "IsbL-0010",
+      "IsbL-0020",
+      "IsbL-0030",
+      "IsbL-0050",
+      "IsbL-0100",
+      "IsbL-0150",
+      "IsbL-0175",
+      "IsbL-0200",
+      "IsbL-0225",
+      "IsbL-0250",
+      "IsbL-0275",
+      "IsbL-0300",
+      "IsbL-0350",
+      "IsbL-0400",
+      "IsbL-0450",
+      "IsbL-0500",
+      "IsbL-0550",
+      "IsbL-0600",
+      "IsbL-0650",
+      "IsbL-0700",
+      "IsbL-0750",
+      "IsbL-0800",
+      "IsbL-0850",
+      "IsbL-0875",
+      "IsbL-0900",
+      "IsbL-0925",
+      "IsbL-0950",
+      "IsbL-0970",
+      "IsbL-0985",
+      "IsbL-1000",
+      "IsbL-1015"
+    ],
+    "only_3h": [
+      "IsbL-0001",
+      "IsbL-0005",
+      "IsbL-0010",
+      "IsbL-0020",
+      "IsbL-0030",
+      "IsbL-0050",
+      "IsbL-0100",
+      "IsbL-0150",
+      "IsbL-0175",
+      "IsbL-0200",
+      "IsbL-0225",
+      "IsbL-0250",
+      "IsbL-0275",
+      "IsbL-0300",
+      "IsbL-0350",
+      "IsbL-0400",
+      "IsbL-0450",
+      "IsbL-0500",
+      "IsbL-0550",
+      "IsbL-0600",
+      "IsbL-0650",
+      "IsbL-0750",
+      "IsbL-0800",
+      "IsbL-0850",
+      "IsbL-0875",
+      "IsbL-0900",
+      "IsbL-0925",
+      "IsbL-0950",
+      "IsbL-0970",
+      "IsbL-0985",
+      "IsbL-1000",
+      "IsbL-1015"
+    ]
+  },
+  "NetLongwaveRadiationFlux-Accum": {
+    "name": "Net Longwave Radiation Flux Accumulation",
+    "levels": [
+      "Sfc"
+    ]
+  },
+  "RadiativeTemp": {
+    "name": "Radiative Temperature",
+    "levels": [
+      "Sfc"
+    ]
+  },
+  "SoilVolumetricIceContent": {
+    "name": "Soil Volumetric Ice Content",
+    "levels": [
+      "Sfc"
+    ],
+    "only_3h": [
+      "Sfc"
+    ]
+  },
+  "UVIndex": {
+    "name": "UV Index",
+    "levels": [
+      "Sfc"
+    ]
+  },
+  "Runoff-Accum": {
+    "name": "Runoff Accumulation",
+    "levels": [
+      "Sfc"
+    ]
+  },
+  "Snow-Accum": {
+    "name": "Snow Accumulation",
+    "levels": [
+      "Sfc"
+    ]
+  },
+  "SnowDensity": {
+    "name": "Snow Density",
+    "levels": [
+      "Sfc"
+    ],
+    "only_3h": [
+      "Sfc"
+    ]
+  },
+  "LiftedIndex-MU-VT": {
+    "name": "Lifted Index MU-VT",
+    "levels": [
+      "IsbL-0500"
+    ],
+    "only_3h": [
+      "IsbL-0500"
+    ]
+  },
+  "Pressure": {
+    "name": "Pressure",
+    "levels": [
+      "MSL",
+      "PVU-1",
+      "PVU-1.5",
+      "PVU-2",
+      "Sfc"
+    ],
+    "only_3h": [
+      "PVU-1",
+      "PVU-1.5",
+      "PVU-2"
+    ]
+  },
+  "Rain-Accum3h": {
+    "name": "Rain Accumulation 3h",
+    "levels": [
+      "Sfc"
+    ],
+    "only_3h": [
+      "Sfc"
+    ]
+  },
+  "O3": {
+    "name": "Ozone Concentration",
+    "levels": [
+      "EAtm"
+    ]
+  },
+  "TotalTotalsIndex": {
+    "name": "Total Totals Index",
+    "levels": [
+      "Sfc"
+    ],
+    "only_3h": [
+      "Sfc"
+    ]
+  },
+  "Snow-Accum3h": {
+    "name": "Snow Accumulation 3h",
+    "levels": [
+      "Sfc"
+    ],
+    "only_3h": [
+      "Sfc"
+    ]
+  },
+  "FreezingRain-Accum3h": {
+    "name": "Freezing Rain Accumulation 3h",
+    "levels": [
+      "Sfc"
+    ],
+    "only_3h": [
+      "Sfc"
+    ]
+  },
+  "Precip-Accum3h": {
+    "name": "Precipitation Accumulation 3h",
+    "levels": [
+      "Sfc"
+    ],
+    "only_3h": [
+      "Sfc"
+    ]
+  },
+  "CIN": {
+    "name": "CIN",
+    "levels": [
+      "Sfc"
+    ],
+    "only_3h": [
+      "Sfc"
+    ]
+  },
+  "WindGust-Min": {
+    "name": "Wind Gust Min",
+    "levels": [
+      "AGL-10m"
+    ]
+  },
+  "SoilVolumetricWaterContent": {
+    "name": "Soil Volumetric Water Content",
+    "levels": [
+      "DBS-0to10cm",
+      "DBS-0to1cm"
+    ]
+  },
+  "GeopotentialHeight": {
+    "name": "Geopotential Height",
+    "levels": [
+      "IsbL-0001",
+      "IsbL-0005",
+      "IsbL-0010",
+      "IsbL-0020",
+      "IsbL-0030",
+      "IsbL-0050",
+      "IsbL-0100",
+      "IsbL-0150",
+      "IsbL-0175",
+      "IsbL-0200",
+      "IsbL-0225",
+      "IsbL-0250",
+      "IsbL-0275",
+      "IsbL-0300",
+      "IsbL-0350",
+      "IsbL-0400",
+      "IsbL-0450",
+      "IsbL-0500",
+      "IsbL-0550",
+      "IsbL-0600",
+      "IsbL-0650",
+      "IsbL-0700",
+      "IsbL-0750",
+      "IsbL-0800",
+      "IsbL-0850",
+      "IsbL-0875",
+      "IsbL-0900",
+      "IsbL-0925",
+      "IsbL-0950",
+      "IsbL-0970",
+      "IsbL-0985",
+      "IsbL-1000",
+      "IsbL-1015"
+    ],
+    "only_3h": [
+      "IsbL-0001",
+      "IsbL-0005",
+      "IsbL-0010",
+      "IsbL-0020",
+      "IsbL-0030",
+      "IsbL-0050",
+      "IsbL-0100",
+      "IsbL-0150",
+      "IsbL-0175",
+      "IsbL-0200",
+      "IsbL-0225",
+      "IsbL-0250",
+      "IsbL-0275",
+      "IsbL-0300",
+      "IsbL-0350",
+      "IsbL-0400",
+      "IsbL-0450",
+      "IsbL-0500",
+      "IsbL-0550",
+      "IsbL-0600",
+      "IsbL-0650",
+      "IsbL-0700",
+      "IsbL-0750",
+      "IsbL-0800",
+      "IsbL-0850",
+      "IsbL-0875",
+      "IsbL-0900",
+      "IsbL-0925",
+      "IsbL-0950",
+      "IsbL-0970",
+      "IsbL-0985",
+      "IsbL-1000",
+      "IsbL-1015"
+    ]
+  },
+  "SpecificHumidity": {
+    "name": "Specific Humidity",
+    "levels": [
+      "AGL-120m",
+      "AGL-2m",
+      "AGL-40m",
+      "AGL-80m",
+      "IsbL-0001",
+      "IsbL-0005",
+      "IsbL-0010",
+      "IsbL-0020",
+      "IsbL-0030",
+      "IsbL-0050",
+      "IsbL-0100",
+      "IsbL-0150",
+      "IsbL-0175",
+      "IsbL-0200",
+      "IsbL-0225",
+      "IsbL-0250",
+      "IsbL-0275",
+      "IsbL-0300",
+      "IsbL-0350",
+      "IsbL-0400",
+      "IsbL-0450",
+      "IsbL-0500",
+      "IsbL-0550",
+      "IsbL-0600",
+      "IsbL-0650",
+      "IsbL-0700",
+      "IsbL-0750",
+      "IsbL-0800",
+      "IsbL-0850",
+      "IsbL-0875",
+      "IsbL-0900",
+      "IsbL-0925",
+      "IsbL-0950",
+      "IsbL-0970",
+      "IsbL-0985",
+      "IsbL-1000",
+      "IsbL-1015",
+      "Sfc"
+    ],
+    "only_3h": [
+      "IsbL-0001",
+      "IsbL-0005",
+      "IsbL-0010",
+      "IsbL-0020",
+      "IsbL-0030",
+      "IsbL-0050",
+      "IsbL-0100",
+      "IsbL-0150",
+      "IsbL-0175",
+      "IsbL-0200",
+      "IsbL-0225",
+      "IsbL-0250",
+      "IsbL-0275",
+      "IsbL-0300",
+      "IsbL-0350",
+      "IsbL-0400",
+      "IsbL-0450",
+      "IsbL-0500",
+      "IsbL-0550",
+      "IsbL-0600",
+      "IsbL-0650",
+      "IsbL-0700",
+      "IsbL-0750",
+      "IsbL-0800",
+      "IsbL-0850",
+      "IsbL-0875",
+      "IsbL-0900",
+      "IsbL-0925",
+      "IsbL-0950",
+      "IsbL-0970",
+      "IsbL-0985",
+      "IsbL-1000",
+      "IsbL-1015"
+    ]
+  }
+}

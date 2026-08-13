@@ -1,13 +1,10 @@
-import json
 import os
 import logging
 import subprocess
 import sys
-
 from MetPlot.Downloader.Parsers.NomadsUtils import GFSUSE
 from MetPlot.Downloader.Parsers.icon import ICONUSE
-
-sys.path.insert(0, os.path.dirname(__file__))
+from MetPlot.Downloader.misc import file_read
 from pathlib import Path
 import requests
 import webview
@@ -17,6 +14,9 @@ from MetPlot.Downloader.Parsers.GEM import GEMUSE
 from types import SimpleNamespace
 from MetPlot.utils.CMAPTest import PlotData
 import multiprocessing
+from MetPlot.Variables import catalog_path
+sys.path.insert(0, os.path.dirname(__file__))
+
 multiprocessing.set_start_method("spawn", force=True)
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
@@ -51,16 +51,6 @@ def global_navbar():
                 'color: white; text-decoration: none; font-size: 16px; text-transform: uppercase; transition: color 0.3s ease, transform 0.3s ease;')
             ui.button('CPT_App',on_click=lambda:subprocess.Popen([sys.executable, "-m", "MetPlot.utils.colorgen"]), color="#1a1a1d")
 
-def file_read(file):
-    with open(file) as file:
-        if file.name.endswith('.json'):
-            content = json.load(file)
-        else:
-            content = file.readlines()
-            content = [i.strip('\n') for i in content]
-
-        file.close()
-    return content
 
 
 
@@ -89,18 +79,14 @@ def update_coordinates(top: float, bottom: float, left: float, right: float):
     state.inputs['right'].value = str(right)
 
 model_loads = {
-    "GFS" : lambda : load(GFSUSE(content),download_button, state.inputs['top'], state.inputs['bottom'],
-                    state.inputs['left'],
-                    state.inputs['right'], temp_elements),
-    "GEM" : lambda : load(GEMUSE(), download_button , state.inputs['top'], state.inputs['bottom'],
-                    state.inputs['left'],
-                    state.inputs['right'],temp_elements),
-    "ICON" : lambda : load(ICONUSE(file_read(abs_path('static/Variables/ICON/MERGED_PARAMS.json'))),download_button,
-                    state.inputs['top'], state.inputs['bottom'],
-                    state.inputs['left'],
-                    state.inputs['right'],temp_elements)
-
+    "GFS" : lambda : load(GFSUSE(content), download_button, state.inputs['top'], state.inputs['bottom'],
+                    state.inputs['left'], state.inputs['right'], temp_elements),
+    "GEM" : lambda : load(GEMUSE(), download_button, state.inputs['top'], state.inputs['bottom'],
+                    state.inputs['left'], state.inputs['right'], temp_elements),
+    "ICON" : lambda : load(ICONUSE(), download_button, state.inputs['top'], state.inputs['bottom'],
+                    state.inputs['left'], state.inputs['right'], temp_elements),
 }
+
 def model_load(variables_file : str, levels_file : str, model : str):
     while temp_elements:
         element = temp_elements.pop()
@@ -148,13 +134,12 @@ def abs_path(p):
     return str(BASE_PATH / p)
 
 MODELS = {
-    'GFS': lambda: model_load(abs_path('static/Variables/GFS/MERGED_PARAMS.json'),
-                             abs_path('static/Variables/GFS/VERTICAL_LEVELS.txt'), 'GFS'),
-
-    'GEM': lambda: model_load(abs_path('static/Variables/GEM/MERGED_PARAMS.json'),
-                             abs_path('static/Variables/GEM/VERTICAL_LEVELS.txt'), 'GEM'),
-    'ICON' : lambda : model_load(abs_path('static/Variables/ICON/MERGED_PARAMS.json'),
-                                 abs_path('static/Variables/ICON/VERTICAL_LEVELS.txt'),'ICON')
+    'GFS':  lambda: model_load(catalog_path('GFS', 'MERGED_PARAMS.json'),
+                               catalog_path('GFS', 'VERTICAL_LEVELS.txt'), 'GFS'),
+    'GEM':  lambda: model_load(catalog_path('GEM', 'MERGED_PARAMS.json'),
+                               catalog_path('GEM', 'VERTICAL_LEVELS.txt'), 'GEM'),
+    'ICON': lambda: model_load(catalog_path('ICON', 'MERGED_PARAMS.json'),
+                               catalog_path('ICON', 'VERTICAL_LEVELS.txt'), 'ICON'),
 }
 
 

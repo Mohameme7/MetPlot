@@ -2,7 +2,7 @@
 # And it has the worst request error handling ever and thus this forces me to parse its html content to get what I need
 import requests
 from MetPlot.Downloader.Parsers.ModelAbstract import WeatherModel, Selection
-from MetPlot.Downloader.size_fetch import fetch_sizes
+from MetPlot.Downloader.misc import fetch_sizes
 from MetPlot.utils.coordinates import bbox_percent
 from MetPlot.validators import validate_coords
 from MetPlot.Downloader.Parsers.BaseParse import ModelParse
