@@ -270,7 +270,5 @@ def settings_page():
           ui.label("Panoply Path is not set yet.")
 
 
-
-if __name__ in {'__main__', '__mp_main__'}:
-    ui.run(native=True, window_size=(1600, 900), favicon='⛈️', title='MetPlot')
+ui.run(native=True, window_size=(1600, 900), favicon='⛈️', title='MetPlot')
 
