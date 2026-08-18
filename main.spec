@@ -9,6 +9,7 @@ project_root = Path(os.getcwd()).resolve()
 hiddenimports = collect_submodules('pyproj')
 hiddenimports += collect_submodules('nicegui')
 hiddenimports += ['pkg_resources']
+hiddenimports += collect_submodules('matplotlib.backends')
 datas = collect_data_files('nicegui') + collect_data_files('pyproj') + [
     (str(project_root / 'GUI' / 'templates'), 'templates'),
     (str(project_root / 'MetPlot' / 'Variables'), 'MetPlot/Variables'),
