@@ -83,7 +83,7 @@ model_loads = {
                     state.inputs['left'], state.inputs['right'], temp_elements),
     "GEM" : lambda : load(GEMUSE(), download_button, state.inputs['top'], state.inputs['bottom'],
                     state.inputs['left'], state.inputs['right'], temp_elements),
-    "ICON" : lambda : load(ICONUSE(), download_button, state.inputs['top'], state.inputs['bottom'],
+    "ICON" : lambda : load(ICONUSE(file_read(catalog_path('ICON', "MERGED_PARAMS.json"))), download_button, state.inputs['top'], state.inputs['bottom'],
                     state.inputs['left'], state.inputs['right'], temp_elements),
 }
 
