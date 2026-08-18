@@ -1,0 +1,80 @@
+name: Build
+
+on:
+  workflow_dispatch:
+  pull_request:
+  push:
+    branches: [ ci-test ]
+
+jobs:
+  build:
+    name: Build (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ windows-latest, macos-latest, ubuntu-latest ]
+
+    defaults:
+      run:
+        shell: bash -el {0}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install pywebview system libraries (Linux)
+        if: runner.os == 'Linux'
+        shell: bash
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            libgirepository1.0-dev libcairo2-dev pkg-config \
+            gir1.2-gtk-3.0 libgtk-3-dev \
+            gir1.2-webkit2-4.1 libwebkit2gtk-4.1-dev
+
+      - name: Set up conda environment
+        uses: mamba-org/setup-micromamba@v2
+        with:
+          environment-name: metplot-build
+          init-shell: bash
+          cache-environment: true
+          create-args: >-
+            python=3.11
+            pygrib
+            cartopy
+            numpy
+            scipy
+            matplotlib
+            pillow
+            beautifulsoup4
+            httpx
+            requests
+            setuptools<81
+
+      - name: Install MetPlot and GUI dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e . --no-deps
+          pip install pyinstaller nicegui pywebview customtkinter
+
+      - name: Import smoke test
+        env:
+          PYTHONPATH: GUI
+        run: |
+          python -c "
+          import MetPlot
+          import GUI.main as gui_main
+          print('imported MetPlot and GUI.main OK')
+          "
+
+      - name: Build with PyInstaller
+        continue-on-error: true
+        run: pyinstaller main.spec
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: MetPlot-${{ matrix.os }}
+          path: dist/
+          retention-days: 14
+          if-no-files-found: warn
