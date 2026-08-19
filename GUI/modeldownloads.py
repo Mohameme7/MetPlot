@@ -7,7 +7,6 @@ from multiprocessing import Manager
 from EventBus_Observers import EventBus, Observable
 
 
-
 Bus = EventBus()
 def finished_dialog(dialog, file):
     with dialog, ui.card().style('padding: 20px;'):
@@ -58,7 +57,7 @@ def download(model: WeatherModel, sel: Selection, filename: str):
     model.finalize(filename, sel)
 
 
-def load(model: WeatherModel, download_button, top_entry, bottom_entry,
+def load(model: WeatherModel, download_button : ui.button, top_entry, bottom_entry,
          left_entry, right_entry, generated_elements):
     Bus.clear_subscribers()
     for e in [top_entry, bottom_entry, left_entry, right_entry]:
@@ -117,4 +116,5 @@ def load(model: WeatherModel, download_button, top_entry, bottom_entry,
         runs = ui.select(options=[''])
         run_dates.on_value_change(lambda: runs.set_options(model_data.get(run_dates.value)))
         generated_elements.extend([run_dates,runs])
+        download_button._event_listeners.clear()
         download_button.on_click(lambda: Download(run_dates.value,runs.value))
