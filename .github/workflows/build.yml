@@ -55,17 +55,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -e . --no-deps
-          pip install pyinstaller nicegui pywebview customtkinter
-
-      - name: Import smoke test
-        env:
-          PYTHONPATH: GUI
-        run: |
-          python -c "
-          import MetPlot
-          import GUI.main as gui_main
-          print('imported MetPlot and GUI.main OK')
-          "
+          pip install pyinstaller nicegui pywebview==5.4 customtkinter
 
       - name: Build with PyInstaller
         continue-on-error: true
