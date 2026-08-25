@@ -1,4 +1,6 @@
 import os
+
+import numpy as np
 import pygrib
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
@@ -30,14 +32,22 @@ class GribInterpolator:
         return {key: sorted(steps) for key, steps in variables_levels.items()}
 
     def _find_missing_steps(self, steps):
-        """Identify gaps in forecast steps."""
-        all_steps = list(range(min(steps), max(steps) + 1))
-        return [step for step in all_steps if step not in steps]
+        # steps is already sorted array-like of time values
+        steps = np.array(steps)
+        missing = []
+        for i in range(len(steps) - 1):
+            # look for gaps
+            diff = steps[i + 1] - steps[i]
+            if diff > 1:  # gap exists
+                # create only the missing steps
+                missing.extend(steps[i] + 1 + np.arange(diff - 1))
+        return missing
 
     def _interpolate_data(self, var, level, steps):
         """Perform linear interpolation to fill missing forecast steps."""
         interpolated = {}
         missing_steps = self._find_missing_steps(steps)
+
         for step in missing_steps:
             lower_step = max([s for s in steps if s < step], default=None)
             upper_step = min([s for s in steps if s > step], default=None)
@@ -65,7 +75,7 @@ class GribInterpolator:
         with ThreadPoolExecutor(max_workers=os.cpu_count() + 1) as executor:
             futures = {
                 executor.submit(self._interpolate_data, var, level, steps): (var, level)
-                for (var, level), steps in self.variables_levels.items()
+                for (var, level), steps in self._get_variables_levels().items()
             }
 
             for future in as_completed(futures):
@@ -102,7 +112,13 @@ class GribInterpolator:
     def _create_grib_message(self, grb, step, data):
         """Create a new GRIB message using the template of an existing message."""
         new_grb = pygrib.fromstring(grb.tostring())
+
         new_grb['forecastTime'] = step
         new_grb['values'] = data
         new_grb.packingType = 'grid_simple'
         return new_grb
+
+
+# DO NOT EVER USE THIS
+# I must be drunk when i wrote this, but this basically makes your ram/cpu boom
+# Whats xarray anyways?
