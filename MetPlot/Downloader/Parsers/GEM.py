@@ -17,7 +17,6 @@ def is_run(run) -> bool:
     return run.endswith('/') and run.strip('/').isdigit()
 
 
-#TODO: Make GEM Class Dynamic to handle all CMC models, EG: Ensemble GEPS, GEM, GDPS
 class GEM(ModelParse):
     BASEURL = 'https://dd.weather.gc.ca/'
 
