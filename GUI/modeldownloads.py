@@ -69,6 +69,8 @@ def load(model: WeatherModel, download_button : ui.button, top_entry, bottom_ent
             dialog_type=webview.SAVE_DIALOG)
         if isinstance(file, tuple):
             file = file[0]
+        if not file:
+            return
 
         hours = list(model.forecast_hours(run_date,run))
 
