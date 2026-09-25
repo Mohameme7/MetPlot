@@ -17,40 +17,56 @@ def is_run(run) -> bool:
     return run.endswith('/') and run.strip('/').isdigit()
 
 
+#TODO: Make GEM Class Dynamic to handle all CMC models, EG: Ensemble GEPS, GEM, GDPS
 class GEM(ModelParse):
-    BASEURL = 'https://dd.weather.gc.ca/today/model_gdps/15km'
+    BASEURL = 'https://dd.weather.gc.ca/'
 
     def __init__(self):
         self.requestclient = RequestClient()
         self.html = self.requestclient.SendRequest('get', url=GEM.BASEURL,
                                                    follow_redirects=True).response_text
 
-
     def get_available_runs(self) -> dict:
         """
        Parses all available runs available on the GEM Server
        :return: List of GEM Runs available, eg : [00, 12, 18]
        """
-        date_str = datetime.now(timezone.utc).strftime("%Y%m%d")
         runs_and_dates = {}
-
         soup = BeautifulSoup(self.html, 'html.parser')
-        runs = [a.get('href').strip('/') for a in soup.find_all('a') if is_run(a.get('href'))]
-        runs_and_dates[date_str] = runs
-        print(runs_and_dates)
+        dates = [a.get('href').strip('/') for a in soup.find_all('a') if is_run(a.get('href'))]
+        for date in dates:
+            if date in [dates[-1], dates[-2]]:
+                model_test = self.requestclient.SendRequest('get', url=f'https://dd.weather.gc.ca/{date}/WXO-DD/')
+                model_test_soup = BeautifulSoup(model_test.response_text, 'html.parser')
+                models = [a.get('href').strip('/') for a in model_test_soup.find_all('a')]
+                if 'model_gdps' not in models:
+                    continue
+                runs_req = self.requestclient.SendRequest('get', url=f"{GEM.BASEURL}/{date}/WXO-DD/model_gdps/15km",
+                                                          follow_redirects=True)
+                runs_soup = BeautifulSoup(runs_req.response_text, 'html.parser')
+                runs = [
+                    a["href"].rstrip("/")
+                    for a in runs_soup.find_all("a", href=True)
+                    if is_run(a["href"])
+                ]
+                runs_and_dates[date] = runs
+            else:
+                runs_and_dates[date] = ['00', '12']
+
         return runs_and_dates
 
-    def get_forecast_hours(self, run) -> list:
+    def get_forecast_hours(self, run_date, run) -> list:
         """
 
         :param run: Desired run to get forecast hours for
         :return: List of forecast hours of that run
         :raises InvalidRun if run is invalid
         """
-        request = self.requestclient.SendRequest('get', url= GEM.BASEURL + '/' + run, follow_redirects=True)
+        request = self.requestclient.SendRequest('get',
+                                                 url=f"{GEM.BASEURL}/{run_date}/WXO-DD/model_gdps/15km/{run}",
+                                                 follow_redirects=True)
         if not request.success:
             raise InvalidRun("Run not found")
-
 
         soup = BeautifulSoup(request.response_text, 'html.parser')
         hour_attrs = soup.find_all('a')
@@ -58,18 +74,6 @@ class GEM(ModelParse):
         hours = list(filter(is_run, href))
         hours = [r.strip('/') for r in hours]
         return hours
-
-    #def get_runs_hours(self) -> dict:
-    #    """
-    #    :return: Returns a dict of available runs and their corresponding hours, eg : {"00" : [0,3,6]}
-    #    """
-#
- #       run_hours = {}
-  #      runs = self.get_available_runs()
-#
- #       for run in runs:
-  #          run_hours[run] = self.get_forecast_hours(run)
-   #     return run_hours
 
 
     @staticmethod
@@ -86,6 +90,10 @@ class GEM(ModelParse):
             f"https://dd.weather.gc.ca/today/model_gdps/15km/{f_run}/{f_hour}/"
             f"{date_str}T{f_run}Z_MSC_GDPS_{variable}_{level}_LatLon0.15_PT{f_hour}H.grib2"
         )
+
+
+GEM().get_available_runs()
+
 
 class GEMUSE(GEM, WeatherModel):
     def __init__(self):
@@ -126,4 +134,4 @@ class GEMUSE(GEM, WeatherModel):
         return self.get_available_runs()
 
     def forecast_hours(self, run_date, run) -> list:
-        return self.get_forecast_hours(run)
+        return self.get_forecast_hours(run_date, run)
