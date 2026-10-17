@@ -81,7 +81,9 @@ def update_coordinates(top: float, bottom: float, left: float, right: float):
 model_loads = {
     "GFS" : lambda : load(GFSUSE(content), download_button, state.inputs['top'], state.inputs['bottom'],
                     state.inputs['left'], state.inputs['right'], temp_elements),
-    "GEM" : lambda : load(GEMUSE(), download_button, state.inputs['top'], state.inputs['bottom'],
+    "GEM" : lambda : load(GEMUSE('GEM'), download_button, state.inputs['top'], state.inputs['bottom'],
+                    state.inputs['left'], state.inputs['right'], temp_elements),
+    "GEPS" : lambda : load(GEMUSE('GEPS'), download_button, state.inputs['top'], state.inputs['bottom'],
                     state.inputs['left'], state.inputs['right'], temp_elements),
     "ICON" : lambda : load(ICONUSE(file_read(catalog_path('ICON', "MERGED_PARAMS.json"))), download_button, state.inputs['top'], state.inputs['bottom'],
                     state.inputs['left'], state.inputs['right'], temp_elements),
@@ -136,10 +138,12 @@ def abs_path(p):
 MODELS = {
     'GFS':  lambda: model_load(catalog_path('GFS', 'MERGED_PARAMS.json'),
                                catalog_path('GFS', 'VERTICAL_LEVELS.txt'), 'GFS'),
-    'GEM':  lambda: model_load(catalog_path('GEM', 'MERGED_PARAMS.json'),
-                               catalog_path('GEM', 'VERTICAL_LEVELS.txt'), 'GEM'),
+    'GEM':  lambda: model_load(catalog_path('CMC/GEM', 'MERGED_PARAMS.json'),
+                               catalog_path('CMC/GEM', 'VERTICAL_LEVELS.txt'), 'GEM'),
     'ICON': lambda: model_load(catalog_path('ICON', 'MERGED_PARAMS.json'),
                                catalog_path('ICON', 'VERTICAL_LEVELS.txt'), 'ICON'),
+   'GEPS': lambda: model_load(catalog_path('CMC/GEPS', 'MERGED_PARAMS.json'),
+                               catalog_path('CMC/GEPS', 'VERTICAL_LEVELS.txt'), 'GEPS'),
 }
 
 

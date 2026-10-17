@@ -1,0 +1,285 @@
+{
+  "AFRAIN": {
+    "name": "Freezing Rain Accumulation",
+    "levels": [
+      "SFC_0"
+    ]
+  },
+  "AICEP": {
+    "name": "Ice Pellets Accumulation",
+    "levels": [
+      "SFC_0"
+    ]
+  },
+  "APCP": {
+    "name": "Total Precipitation",
+    "levels": [
+      "SFC_0"
+    ]
+  },
+  "ARAIN": {
+    "name": "Rain Accumulation",
+    "levels": [
+      "SFC_0"
+    ]
+  },
+  "ASNOW": {
+    "name": "Snow Accumulation",
+    "levels": [
+      "SFC_0"
+    ]
+  },
+  "CAPE": {
+    "name": "CAPE",
+    "levels": [
+      "SFC_0"
+    ],
+    "only_0h": [
+      "SFC_0"
+    ]
+  },
+  "CIN": {
+    "name": "Convective Inhibition",
+    "levels": [
+      "SFC_0"
+    ],
+    "only_0h": [
+      "SFC_0"
+    ]
+  },
+  "DLWRF": {
+    "name": "Downward Long-Wave Radiation Flux",
+    "levels": [
+      "SFC_0"
+    ]
+  },
+  "DSWRF": {
+    "name": "Downward Short-Wave Radiation Flux",
+    "levels": [
+      "SFC_0"
+    ]
+  },
+  "HGT": {
+    "name": "Geopotential Height",
+    "levels": [
+      "ISBL_0010",
+      "ISBL_0050",
+      "ISBL_0100",
+      "ISBL_0200",
+      "ISBL_0250",
+      "ISBL_0300",
+      "ISBL_0500",
+      "ISBL_0700",
+      "ISBL_0850",
+      "ISBL_0925",
+      "ISBL_1000",
+      "SFC_0"
+    ],
+    "only_0h": [
+      "SFC_0"
+    ]
+  },
+  "ICETK": {
+    "name": "Ice Thickness",
+    "levels": [
+      "SFC_0"
+    ]
+  },
+  "LHTFL": {
+    "name": "Latent Heat Net Flux",
+    "levels": [
+      "SFC_0"
+    ]
+  },
+  "OLR": {
+    "name": "Outgoing Long-Wave Radiation",
+    "levels": [
+      "NTAT_0"
+    ]
+  },
+  "PRES": {
+    "name": "Pressure",
+    "levels": [
+      "SFC_0"
+    ]
+  },
+  "PRMSL": {
+    "name": "Pressure Reduced to Mean Sea Level",
+    "levels": [
+      "MSL_0"
+    ]
+  },
+  "PWAT": {
+    "name": "Precipitable Water",
+    "levels": [
+      "EATM_0"
+    ]
+  },
+  "RH": {
+    "name": "Relative Humidity",
+    "levels": [
+      "ISBL_0010",
+      "ISBL_0050",
+      "ISBL_0100",
+      "ISBL_0200",
+      "ISBL_0250",
+      "ISBL_0500",
+      "ISBL_0700",
+      "ISBL_0850",
+      "ISBL_0925",
+      "ISBL_1000",
+      "TGL_2m"
+    ]
+  },
+  "SFC_0WRO": {
+    "name": "Surface Water Runoff",
+    "levels": [
+      "SFC_0"
+    ]
+  },
+  "SHTFL": {
+    "name": "Sensible Heat Net Flux",
+    "levels": [
+      "SFC_0"
+    ]
+  },
+  "SNOD": {
+    "name": "Snow Depth",
+    "levels": [
+      "SFC_0"
+    ]
+  },
+  "SPFH": {
+    "name": "Specific Humidity",
+    "levels": [
+      "TGL_2",
+      "TGL_40",
+      "TGL_80",
+      "TGL_120"
+    ]
+  },
+  "SWAT": {
+    "name": "Soil Water",
+    "levels": [
+      "DBLL_10cm"
+    ]
+  },
+  "TCDC": {
+    "name": "Total Cloud Cover",
+    "levels": [
+      "SFC_0"
+    ]
+  },
+  "TMAX": {
+    "name": "Maximum Temperature",
+    "levels": [
+      "TGL_2m"
+    ],
+    "only_6h": [
+      "TGL_2m"
+    ]
+  },
+  "TMIN": {
+    "name": "Minimum Temperature",
+    "levels": [
+      "TGL_2m"
+    ],
+    "only_6h": [
+      "TGL_2m"
+    ]
+  },
+  "TMP": {
+    "name": "Temperature",
+    "levels": [
+      "ISBL_0010",
+      "ISBL_0050",
+      "ISBL_0100",
+      "ISBL_0200",
+      "ISBL_0250",
+      "ISBL_0500",
+      "ISBL_0700",
+      "ISBL_0850",
+      "ISBL_0925",
+      "ISBL_1000",
+      "TGL_2m",
+      "TGL_40",
+      "TGL_80",
+      "TGL_120"
+    ]
+  },
+  "TSOIL": {
+    "name": "Soil Temperature",
+    "levels": [
+      "DBLL_10cm"
+    ]
+  },
+  "UGRD": {
+    "name": "U-Component of Wind",
+    "levels": [
+      "ISBL_0010",
+      "ISBL_0050",
+      "ISBL_0100",
+      "ISBL_0200",
+      "ISBL_0250",
+      "ISBL_0300",
+      "ISBL_0400",
+      "ISBL_0500",
+      "ISBL_0700",
+      "ISBL_0850",
+      "ISBL_0925",
+      "ISBL_1000",
+      "TGL_10m"
+    ]
+  },
+  "ULWRF": {
+    "name": "Upward Long-Wave Radiation Flux",
+    "levels": [
+      "SFC_0"
+    ]
+  },
+  "USWRF": {
+    "name": "Upward Short-Wave Radiation Flux",
+    "levels": [
+      "SFC_0"
+    ]
+  },
+  "VGRD": {
+    "name": "V-Component of Wind",
+    "levels": [
+      "ISBL_0010",
+      "ISBL_0050",
+      "ISBL_0100",
+      "ISBL_0200",
+      "ISBL_0250",
+      "ISBL_0300",
+      "ISBL_0400",
+      "ISBL_0500",
+      "ISBL_0700",
+      "ISBL_0850",
+      "ISBL_0925",
+      "ISBL_1000",
+      "TGL_10m"
+    ]
+  },
+  "VVEL": {
+    "name": "Vertical Velocity",
+    "levels": [
+      "ISBL_0850"
+    ]
+  },
+  "WEASD": {
+    "name": "Water Equivalent of Accumulated Snow Depth",
+    "levels": [
+      "SFC_0"
+    ]
+  },
+  "WIND": {
+    "name": "Wind Speed",
+    "levels": [
+      "TGL_10",
+      "TGL_40",
+      "TGL_80",
+      "TGL_120"
+    ]
+  }
+}

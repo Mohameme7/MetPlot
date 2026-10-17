@@ -16,31 +16,54 @@ from MetPlot.Variables import catalog_path
 def is_run(run) -> bool:
     return run.endswith('/') and run.strip('/').isdigit()
 
-
 class GEM(ModelParse):
     BASEURL = 'https://dd.weather.gc.ca/'
 
-    def __init__(self):
+    MODELS = {
+        'GEM': {
+            "path": 'model_gdps/15km/',
+            "url_template": f"{BASEURL}/"
+                            "{date_str}/WXO-DD/"
+                            "model_gdps/15km/"
+                            "{run}/"
+                            "{dir_hour}/"
+                            "{date_str}T{run}Z_MSC_GDPS_{variable}_{level}_LatLon0.15_PT{file_hour}H.grib2",
+        },
+        'GEPS': {
+            "path": 'ensemble/geps/grib2/raw/',
+            "url_template": f"{BASEURL}/"
+                            "{date_str}/WXO-DD/ensemble/geps/grib2/raw/{run}/{dir_hour}/CMC_geps-raw_"
+                            "{variable}_{level}_latlon0p5x0p5_{date_str}{run}_P{file_hour}_allmbrs.grib2"
+        }
+    }
+
+    def __init__(self, model : str):
         self.requestclient = RequestClient()
+        if self.MODELS.get(model.upper()) is None:
+            raise ValueError(f"Model {model} not supported")
+        self.model = self.MODELS.get(model.upper())
         self.html = self.requestclient.SendRequest('get', url=GEM.BASEURL,
                                                    follow_redirects=True).response_text
 
     def get_available_runs(self) -> dict:
         """
-       Parses all available runs available on the GEM Server
-       :return: List of GEM Runs available, eg : [00, 12, 18]
+       Parses all available runs available on the CMC Server
+       :return: List of CMC Runs available, eg : [00, 12, 18]
        """
         runs_and_dates = {}
         soup = BeautifulSoup(self.html, 'html.parser')
         dates = [a.get('href').strip('/') for a in soup.find_all('a') if is_run(a.get('href'))]
         for date in dates:
             if date in [dates[-1], dates[-2]]:
-                model_test = self.requestclient.SendRequest('get', url=f'https://dd.weather.gc.ca/{date}/WXO-DD/')
-                model_test_soup = BeautifulSoup(model_test.response_text, 'html.parser')
-                models = [a.get('href').strip('/') for a in model_test_soup.find_all('a')]
-                if 'model_gdps' not in models:
-                    continue
-                runs_req = self.requestclient.SendRequest('get', url=f"{GEM.BASEURL}/{date}/WXO-DD/model_gdps/15km",
+                model_test = self.requestclient.SendRequest('get', url=f'https://dd.weather.gc.ca/{date}/WXO-DD/'
+                                                                       f'{self.model['path']}'
+                                                                       ,
+                                                            follow_redirects=True)
+                print(f'https://dd.weather.gc.ca/{date}/WXO-DD/'
+                                                                       f'{self.model}')
+
+
+                runs_req = self.requestclient.SendRequest('get', url=f"{GEM.BASEURL}/{date}/WXO-DD/{self.model['path']}",
                                                           follow_redirects=True)
                 runs_soup = BeautifulSoup(runs_req.response_text, 'html.parser')
                 runs = [
@@ -62,7 +85,7 @@ class GEM(ModelParse):
         :raises InvalidRun if run is invalid
         """
         request = self.requestclient.SendRequest('get',
-                                                 url=f"{GEM.BASEURL}/{run_date}/WXO-DD/model_gdps/15km/{run}",
+                                                 url=f"{GEM.BASEURL}/{run_date}/WXO-DD/{self.model['path']}/{run}",
                                                  follow_redirects=True)
         if not request.success:
             raise InvalidRun("Run not found")
@@ -75,44 +98,64 @@ class GEM(ModelParse):
         return hours
 
 
-    @staticmethod
-    def create_url(hour: str, run: str, variable: str, level: str, date_str: str = None) -> str:
-        date_str = datetime.now(timezone.utc).strftime("%Y%m%d")
-
+    def create_url(self, hour: str, run: str, variable: str, level: str, date_str: str = None) -> str:
         if not date_str:
             date_str = datetime.now(timezone.utc).strftime("%Y%m%d")
 
-        f_hour = f"{int(hour):03d}"
         f_run = f"{int(run):02d}"
+        dir_hour = f"{int(hour):03d}"
+        file_hour = f"{int(hour):03d}"
 
-        return (
-            f"https://dd.weather.gc.ca/today/model_gdps/15km/{f_run}/{f_hour}/"
-            f"{date_str}T{f_run}Z_MSC_GDPS_{variable}_{level}_LatLon0.15_PT{f_hour}H.grib2"
+        return self.model["url_template"].format(
+            date_str=date_str,
+            run=f_run,
+            dir_hour=dir_hour,
+            file_hour=file_hour,
+            variable=variable,
+            level=level
         )
 
 
-GEM().get_available_runs()
-
 
 class GEMUSE(GEM, WeatherModel):
-    def __init__(self):
-        super().__init__()
-        with open(catalog_path('GEM', 'MERGED_PARAMS.json'), encoding='utf-8') as f:
+    def __init__(self, model : str):
+        super().__init__(model=model)
+        with open(catalog_path(f'CMC/{model}', 'MERGED_PARAMS.json'), encoding='utf-8') as f:
             self.info = json.load(f)
 
     def build_urls(self, sel: Selection) -> list[str]:
         urls = []
         for variable in sel.variables:
             info = self.info[variable]
-            only_3h = set(info.get("only_3h", []))
+            levels = info.get("levels", [])
+            restrictions = {}
+            for key, restricted_levels in info.items():
+                if key.startswith("only_") and key.endswith("h"):
+                    interval_str = key[5:-1]
+                    if interval_str.isdigit():
+                        restrictions[int(interval_str)] = set(restricted_levels)
+
             for level in sel.levels:
-                if level not in info["levels"]:
+                if level not in levels:
                     continue
+
                 for hour in sel.hours:
-                    if level in only_3h and int(hour) % 3 != 0:
+                    h_int = int(hour)
+                    skip = False
+                    for interval, restricted_levels in restrictions.items():
+                        if level in restricted_levels:
+                            if interval == 0:
+                                if h_int != 0:
+                                    skip = True
+                                    break
+                            else:
+                                if h_int % interval != 0:
+                                    skip = True
+                                    break
+                    if skip:
                         continue
                     urls.append(self.create_url(hour=hour, run=sel.run,
-                                                variable=variable, level=level))
+                                                variable=variable, level=level, date_str=sel.run_date))
         return urls
 
     def estimate_size(self, urls, sel: Selection) -> int:
