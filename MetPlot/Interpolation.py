@@ -1,124 +1,70 @@
-import os
+from __future__ import annotations
 
-import numpy as np
-import pygrib
-from concurrent.futures import ThreadPoolExecutor, as_completed
+from pathlib import Path
+
+import cfgrib
+import pandas as pd
+import xarray as xr
+
 
 class GribInterpolator:
-    def __init__(self, file_path, output_file):
-        self.file_path = file_path
-        self.output_file = output_file
-        self.grb_cache = {}
+    """Fill missing forecast steps (default: hourly) by linear interpolation. Writes NetCDF."""
+
+    def __init__(self, file_path: str | Path, freq: str = "1h"):
+        self.file_path = Path(file_path)
+        self.freq = freq
+        self.datasets: list[xr.Dataset] = []
 
     def __enter__(self):
-        """Open the GRIB file and cache messages and their data."""
-        self.grbs = pygrib.open(self.file_path)
-        for grb in self.grbs:
-            key = (grb.name, grb.level, grb.forecastTime)
-            self.grb_cache[key] = grb
-        self.variables_levels = self._get_variables_levels()
+        # One dataset per incompatible group (surface / isobaric / heightAboveGround / ...)
+        self.datasets = cfgrib.open_datasets(
+            str(self.file_path),
+            backend_kwargs={"indexpath": ""},
+        )
         return self
 
-    def __exit__(self, exc_type, exc_value, traceback):
-        """Close file"""
-        self.grbs.close()
+    def __exit__(self, *exc):
+        for ds in self.datasets:
+            ds.close()
+        self.datasets = []
 
-    def _get_variables_levels(self):
-        """Extract available variables, levels, and their forecast steps."""
-        variables_levels = {}
-        for (name, level, step) in self.grb_cache.keys():
-            key = (name, level)
-            variables_levels.setdefault(key, []).append(step)
-        return {key: sorted(steps) for key, steps in variables_levels.items()}
+    @staticmethod
+    def _is_interpolatable(ds: xr.Dataset) -> bool:
+        return "step" in ds.dims and ds.sizes["step"] > 1
 
-    def _find_missing_steps(self, steps):
-        # steps is already sorted array-like of time values
-        steps = np.array(steps)
-        missing = []
-        for i in range(len(steps) - 1):
-            # look for gaps
-            diff = steps[i + 1] - steps[i]
-            if diff > 1:  # gap exists
-                # create only the missing steps
-                missing.extend(steps[i] + 1 + np.arange(diff - 1))
-        return missing
+    def _interpolate(self, ds: xr.Dataset) -> xr.Dataset:
+        if not self._is_interpolatable(ds):
+            return ds
+        new_steps = pd.timedelta_range(ds.step.min().values, ds.step.max().values, freq=self.freq)
+        ds = ds.drop_vars("valid_time", errors="ignore")  # stale coordinate, rebuilt below
+        ds = ds.interp(step=new_steps, method="linear")
+        ds = ds.assign_coords(valid_time=ds.time + ds.step)  # real timestamps
+        return ds.swap_dims({"step": "valid_time"})  # index by date instead of step
 
-    def _interpolate_data(self, var, level, steps):
-        """Perform linear interpolation to fill missing forecast steps."""
-        interpolated = {}
-        missing_steps = self._find_missing_steps(steps)
+    def run(self) -> list[xr.Dataset]:
+        return [self._interpolate(ds) for ds in self.datasets]
 
-        for step in missing_steps:
-            lower_step = max([s for s in steps if s < step], default=None)
-            upper_step = min([s for s in steps if s > step], default=None)
-
-            if lower_step is None or upper_step is None:
-                continue
-
-            start_grb = self.grb_cache.get((var, level, lower_step))
-            end_grb = self.grb_cache.get((var, level, upper_step))
-
-            if not start_grb or not end_grb:
-                continue
-
-            ratio = (step - lower_step) / (upper_step - lower_step)
-            assert start_grb.values.shape == end_grb.values.shape
-
-            interpolated[step] = start_grb.values + (end_grb.values - start_grb.values) * ratio
-        return var, level, interpolated
-
-    def run_interpolation(self) -> dict:
-        """Perform interpolation using multi-threading.
-        :returns: Interpolated data as a dict.
+    def to_netcdf(self, output_file: str | Path, grouped: bool = False) -> Path:
         """
-        interpolated_values = {}
-        with ThreadPoolExecutor(max_workers=os.cpu_count() + 1) as executor:
-            futures = {
-                executor.submit(self._interpolate_data, var, level, steps): (var, level)
-                for (var, level), steps in self._get_variables_levels().items()
-            }
+        grouped=False: merge everything into one flat file (may fail if coords clash).
+        grouped=True : one NetCDF group per level type (always safe).
+        """
+        output_file = Path(output_file)
+        results = self.run()
 
-            for future in as_completed(futures):
-                var, level = futures[future]
-                var, level, data = future.result()
-                if data:
-                    interpolated_values.setdefault(var, {})[level] = data
-        return interpolated_values
+        if grouped:
+            for i, ds in enumerate(results):
+                level_type = self._level_name(ds, i)
+                ds.to_netcdf(output_file, mode="w" if i == 0 else "a", group=level_type)
+        else:
+            merged = xr.merge(results, compat="override", join="outer")
+            merged.to_netcdf(output_file)
+        return output_file
 
-    def merge_to_grib(self, interpolated_values):
-        """Merge interpolated data with the original GRIB file."""
-        with open(self.output_file, 'wb') as out_file:
-            written_steps = set()
-
-            for grb in self.grb_cache.values():
-                out_file.write(grb.tostring())
-                key = (grb.name, grb.level, grb.forecastTime)
-                written_steps.add(key)
-
-            for var, levels in interpolated_values.items():
-                for level, steps in levels.items():
-                    for step, data in steps.items():
-                        key = (var, level, step)
-                        if key not in written_steps:
-                            possible_templates = [k for k in self.grb_cache.keys() if k[0] == var and k[1] == level]
-                            if not possible_templates:
-                                continue
-                            template_step = possible_templates[0][2]
-                            template_grb = self.grb_cache[(var, level, template_step)]
-
-                            new_grb = self._create_grib_message(template_grb, step, data)
-                            out_file.write(new_grb.tostring())
-
-    def _create_grib_message(self, grb, step, data):
-        """Create a new GRIB message using the template of an existing message."""
-        new_grb = pygrib.fromstring(grb.tostring())
-
-        new_grb['forecastTime'] = step
-        new_grb['values'] = data
-        new_grb.packingType = 'grid_simple'
-        return new_grb
-
-
-# DO NOT EVER USE THIS
-# I must be drunk when i wrote this, but this basically makes your ram/cpu boom
-# Whats xarray anyways?
+    @staticmethod
+    def _level_name(ds: xr.Dataset, fallback: int) -> str:
+        for v in ds.data_vars.values():
+            t = v.attrs.get("GRIB_typeOfLevel")
+            if t:
+                return t
+        return f"group_{fallback}"
