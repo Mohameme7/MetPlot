@@ -547,18 +547,26 @@ async def plot_page():
         time_slider._props["max"] = max(0, ps.num_times - 1)
         time_slider.update()
         specs = [_serialize_layer(l) for l in ps.layers]
-        meta = await ui.run_javascript(
-            f"window._metplotCall('syncLayers', {json.dumps(specs)}, {json.dumps(ps.active_id)}, "
-            f"{int(ps.num_times)}, {json.dumps(fit_bounds)})",
-            timeout=20.0,
-        )
-        return meta
+        try:
+            meta = await ui.run_javascript(
+                f"window._metplotCall('syncLayers', {json.dumps(specs)}, {json.dumps(ps.active_id)}, "
+                f"{int(ps.num_times)}, {json.dumps(fit_bounds)})",
+                timeout=20.0,
+            )
+            return meta
+        except TimeoutError:
+            logging.warning("syncLayers timed out waiting for WebGL iframe; retrying fire-and-forget.")
+            ui.run_javascript(
+                f"window._metplotCall('syncLayers', {json.dumps(specs)}, {json.dumps(ps.active_id)}, "
+                f"{int(ps.num_times)}, {json.dumps(fit_bounds)})"
+            )
+            return None
 
     async def push_layer_style(layer: dict):
         if not layer:
             return
         patch = _serialize_layer(layer)
-        await ui.run_javascript(
+        ui.run_javascript(
             f"window._metplotCall('updateLayerStyle', {json.dumps(layer['id'])}, {json.dumps(patch)})"
         )
 
@@ -569,7 +577,7 @@ async def plot_page():
             "smooth": bool(ps.smooth_interp),
             "numTimes": int(ps.num_times),
         }
-        await ui.run_javascript(f"window._metplotCall('setPlayback', {json.dumps(cfg)})")
+        ui.run_javascript(f"window._metplotCall('setPlayback', {json.dumps(cfg)})")
 
     async def push_hud_config():
         cfg = {
@@ -578,10 +586,10 @@ async def plot_page():
             "showTitle": bool(ps.show_title),
             "showColorbar": bool(ps.show_colorbar),
         }
-        await ui.run_javascript(f"window._metplotCall('setHudConfig', {json.dumps(cfg)})")
+        ui.run_javascript(f"window._metplotCall('setHudConfig', {json.dumps(cfg)})")
 
     async def push_map_labels():
-        await ui.run_javascript(f"window._metplotCall('setMapLabels', {json.dumps(ps.map_labels)})")
+        ui.run_javascript(f"window._metplotCall('setMapLabels', {json.dumps(ps.map_labels)})")
         render_labels_list()
 
     async def render_current_time(fit_bounds: bool = False):
@@ -856,8 +864,8 @@ async def plot_page():
         await push_playback()
 
         n_times = ps.num_times
-        drawn_box = await ui.run_javascript("window._metplotCall('getRegionBounds')")
-        view_box = await ui.run_javascript("window._metplotCall('getCurrentViewBounds')")
+        drawn_box = await ui.run_javascript("window._metplotCall('getRegionBounds')", timeout=10.0)
+        view_box = await ui.run_javascript("window._metplotCall('getCurrentViewBounds')", timeout=10.0)
         init_box = drawn_box or view_box or [45.0, 10.0, 20.0, 60.0]
 
         with ui.dialog() as exp_dlg, ui.card().style("padding: 22px; width: 450px;"):
@@ -1010,7 +1018,7 @@ async def plot_page():
                             ps.active_id = lid
                             render_layer_stack()
                             populate_style_editor()
-                            await ui.run_javascript(f"window._metplotCall('setActiveLayer', {json.dumps(lid)})")
+                            ui.run_javascript(f"window._metplotCall('setActiveLayer', {json.dumps(lid)})")
 
                         with ui.column().style("gap: 1px; flex: 1; min-width: 0;").on("click", _select_layer):
                             badge = "WIND" if layer["type"] == "wind" else ("CONTOUR" if layer["mode"] == 4 else "SCALAR")
@@ -1521,7 +1529,7 @@ async def plot_page():
 
                     async def _on_basemap_change(e):
                         ps.basemap = BASEMAP_OPTIONS[e.value]
-                        await ui.run_javascript(f"window._metplotCall('setBasemap', {json.dumps(ps.basemap)})")
+                        ui.run_javascript(f"window._metplotCall('setBasemap', {json.dumps(ps.basemap)})")
 
                     ui.select(
                         options=list(BASEMAP_OPTIONS.keys()), value="OpenStreetMap",
@@ -1540,7 +1548,7 @@ async def plot_page():
                             "renderScale": float(gl_scale_sel.value),
                             "interpMode": int(gl_interp_sel.value),
                         }
-                        await ui.run_javascript(f"window._metplotCall('setRenderQuality', {json.dumps(cfg)})")
+                        ui.run_javascript(f"window._metplotCall('setRenderQuality', {json.dumps(cfg)})")
 
                     with ui.row().classes("w-full gap-2 mb-2"):
                         gl_scale_sel = ui.select(
@@ -1584,7 +1592,7 @@ async def plot_page():
                         place_lbl_btn.props("color=red" if ps.place_label_mode else "color=grey-9")
                         place_lbl_btn.set_text("Stop Placing Labels" if ps.place_label_mode else "Click Map to Place Label")
                         col_hex = LABEL_COLORS.get(lbl_color_sel.value, "#ffffff")
-                        await ui.run_javascript(
+                        ui.run_javascript(
                             f"window._metplotCall('setLabelPlacementMode', {json.dumps(ps.place_label_mode)}, "
                             f"{json.dumps(lbl_text_in.value or 'Label')}, {json.dumps(col_hex)})"
                         )
