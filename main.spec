@@ -3,6 +3,7 @@
 import os
 import sys
 from pathlib import Path
+import certifi
 from PyInstaller.utils.hooks import collect_submodules, collect_data_files
 
 project_root = Path(os.getcwd()).resolve()
@@ -32,7 +33,9 @@ datas += collect_data_files('nicegui')
 datas += collect_data_files('pyproj')
 datas += collect_data_files('cfgrib')
 datas += collect_data_files('eccodes')
+datas += collect_data_files('certifi')
 datas += [
+    (certifi.where(), 'ssl'),
     (str(gui_dir / 'templates'), 'templates'),
     (str(project_root / 'MetPlot' / 'Variables'), 'MetPlot/Variables'),
 ]

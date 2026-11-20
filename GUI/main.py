@@ -14,6 +14,14 @@ if getattr(sys, "frozen", False) and hasattr(sys, "_MEIPASS"):
     _ecc_defs = os.path.join(sys._MEIPASS, "share", "eccodes", "definitions")
     if os.path.isdir(_ecc_defs):
         os.environ.setdefault("ECCODES_DEFINITION_PATH", _ecc_defs)
+    for _ca in (
+        os.path.join(sys._MEIPASS, "certifi", "cacert.pem"),
+        os.path.join(sys._MEIPASS, "ssl", "cacert.pem"),
+    ):
+        if os.path.isfile(_ca):
+            os.environ["SSL_CERT_FILE"] = _ca
+            os.environ["REQUESTS_CA_BUNDLE"] = _ca
+            break
 
 import requests
 import webview
