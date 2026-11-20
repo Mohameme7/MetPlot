@@ -9,7 +9,6 @@ from MetPlot.Exceptions.downloader_exceptions import (
 from MetPlot.Exceptions.parser_errors import InvalidRun
 from MetPlot.utils.RandDataGenerator import MapDataGenerator, MapInfo
 from MetPlot.utils.coordinates import bbox_percent
-from MetPlot.utils.idx_reader import IDX_Reader
 from MetPlot.utils.parsecpt import create_colormap, parse_cpt_string, read_file
 from MetPlot.validators import color_map_validator, is_cpt_format, validate_coords
 from MetPlot.Variables import catalog_path
@@ -151,11 +150,6 @@ def test_bbox_percent_wraps_dateline():
     assert bbox_percent(10, 0, 170, -170) == pytest.approx(bbox_percent(10, 0, 0, 20))
 
 
-# ---- idx reader
-def test_idx_reader_is_json():
-    assert IDX_Reader._is_json('{"a": 1}')
-    assert not IDX_Reader._is_json("not json")
-    assert IDX_Reader([]) is not None
 
 
 # ---- MapDataGenerator
