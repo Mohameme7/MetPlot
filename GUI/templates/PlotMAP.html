@@ -1,0 +1,1503 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>MetPlot WebGL Multi-Layer Map</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<style>
+  html, body {
+    margin: 0; padding: 0; width: 100%; height: 100%;
+    overflow: hidden; background: #121216;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  }
+  #map {
+    position: absolute; inset: 0; width: 100%; height: 100%;
+    background: #1a1d24;
+  }
+  #gl-canvas {
+    position: absolute; top: 0; left: 0;
+    pointer-events: none;
+    z-index: 400;
+  }
+  #overlay-canvas {
+    position: absolute; top: 0; left: 0;
+    pointer-events: none;
+    z-index: 410;
+  }
+  #title-hud {
+    position: absolute; top: 12px; left: 56px; z-index: 800;
+    background: rgba(18, 18, 24, 0.84);
+    backdrop-filter: blur(6px);
+    color: #f3f4f6;
+    padding: 8px 14px;
+    border-radius: 8px;
+    border: 1px solid rgba(255,255,255,0.14);
+    box-shadow: 0 4px 14px rgba(0,0,0,0.35);
+    pointer-events: none;
+    display: none;
+    max-width: 65%;
+  }
+  #title-hud .var-title {
+    font-size: 14px; font-weight: 700; letter-spacing: 0.2px;
+  }
+  #title-hud .time-sub {
+    font-size: 12px; color: #cbd5e1; margin-top: 2px;
+  }
+  #hover-hud {
+    position: absolute; bottom: 14px; left: 14px; z-index: 800;
+    background: rgba(18, 18, 24, 0.86);
+    color: #e2e8f0;
+    padding: 6px 12px;
+    border-radius: 6px;
+    border: 1px solid rgba(255,255,255,0.12);
+    font-size: 12px;
+    font-variant-numeric: tabular-nums;
+    pointer-events: none;
+    max-width: 62%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  #colorbar-hud {
+    position: absolute; bottom: 26px; right: 14px; z-index: 800;
+    background: rgba(18, 18, 24, 0.86);
+    backdrop-filter: blur(6px);
+    color: #f3f4f6;
+    padding: 8px 12px 6px 12px;
+    border-radius: 8px;
+    border: 1px solid rgba(255,255,255,0.14);
+    box-shadow: 0 4px 14px rgba(0,0,0,0.35);
+    pointer-events: none;
+    display: none;
+  }
+  #colorbar-title {
+    font-size: 11px; color: #cbd5e1; margin-bottom: 4px; text-align: center;
+  }
+  #colorbar-canvas {
+    display: block; border-radius: 3px;
+    border: 1px solid rgba(255,255,255,0.22);
+  }
+  #colorbar-ticks {
+    display: flex; justify-content: space-between;
+    font-size: 10px; color: #e2e8f0; margin-top: 3px;
+    font-variant-numeric: tabular-nums;
+  }
+  #hint-hud {
+    position: absolute; top: 12px; right: 14px; z-index: 800;
+    background: rgba(18, 18, 24, 0.76);
+    color: #94a3b8;
+    padding: 5px 10px;
+    border-radius: 6px;
+    font-size: 11px;
+    pointer-events: none;
+  }
+  .label-place-cursor {
+    cursor: crosshair !important;
+  }
+</style>
+</head>
+<body>
+<div id="map"></div>
+<canvas id="gl-canvas"></canvas>
+<canvas id="overlay-canvas"></canvas>
+
+<div id="title-hud">
+  <div class="var-title" id="hud-var-title"></div>
+  <div class="time-sub" id="hud-time-sub"></div>
+</div>
+
+<div id="hint-hud">Shift + Drag to select export region</div>
+<div id="hover-hud">Move cursor over data to inspect values</div>
+
+<div id="colorbar-hud">
+  <div id="colorbar-title"></div>
+  <canvas id="colorbar-canvas" width="260" height="14"></canvas>
+  <div id="colorbar-ticks">
+    <span id="cb-t0"></span>
+    <span id="cb-t1"></span>
+    <span id="cb-t2"></span>
+    <span id="cb-t3"></span>
+    <span id="cb-t4"></span>
+  </div>
+</div>
+
+<script>
+(() => {
+  // ---------------- 1. Leaflet OSM Map (Strictly NO CartoDB) ----------------
+  const BASEMAPS = {
+    osm: {
+      url: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+      attr: '&copy; OpenStreetMap contributors',
+      maxZoom: 19,
+    },
+    opentopo: {
+      url: 'https://a.tile.opentopomap.org/{z}/{x}/{y}.png',
+      attr: '&copy; OpenStreetMap contributors, SRTM | &copy; OpenTopoMap',
+      maxZoom: 17,
+    },
+    osm_hot: {
+      url: 'https://a.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png',
+      attr: '&copy; OpenStreetMap contributors, HOT',
+      maxZoom: 19,
+    },
+  };
+
+  const map = L.map('map', {
+    center: [25, 20],
+    zoom: 3,
+    zoomControl: true,
+    preferCanvas: true,
+    worldCopyJump: false,
+  });
+
+  let currentTileLayer = null;
+  function setBasemap(key) {
+    const cfg = BASEMAPS[key] || BASEMAPS.osm;
+    if (currentTileLayer) map.removeLayer(currentTileLayer);
+    currentTileLayer = L.tileLayer(cfg.url, {
+      attribution: cfg.attr,
+      maxZoom: cfg.maxZoom,
+      crossOrigin: 'anonymous',
+    }).addTo(map);
+  }
+  setBasemap('osm');
+
+  // ---------------- 2. Shift+Drag Box & Click-to-Place Label ----------------
+  let regionRect = null;
+  let regionBounds = null;
+  let isDrawingBox = false;
+  let boxStartLatLng = null;
+
+  let labelPlaceMode = false;
+  let pendingLabelText = 'Point';
+  let pendingLabelColor = '#ffffff';
+  let mapLabels = []; // [{ id, lat, lon, text, color, fontSize }]
+
+  const hudConfig = {
+    customTitle: '',
+    customSubtitle: '',
+    showTitle: true,
+    showColorbar: true,
+  };
+
+  map.on('click', (e) => {
+    if (!labelPlaceMode) return;
+    const lbl = {
+      id: 'lbl_' + Date.now() + '_' + Math.floor(Math.random() * 1000),
+      lat: Number(e.latlng.lat.toFixed(4)),
+      lon: Number(e.latlng.lng.toFixed(4)),
+      text: pendingLabelText || 'Label',
+      color: pendingLabelColor || '#ffffff',
+      fontSize: 13,
+    };
+    mapLabels.push(lbl);
+    renderOverlay();
+    window.parent.postMessage({ type: 'metplot_label_added', label: lbl }, '*');
+  });
+
+  map.on('mousedown', (e) => {
+    if (e.originalEvent.shiftKey && e.originalEvent.button === 0) {
+      map.dragging.disable();
+      isDrawingBox = true;
+      boxStartLatLng = e.latlng;
+      if (regionRect) { map.removeLayer(regionRect); regionRect = null; }
+      regionRect = L.rectangle([boxStartLatLng, boxStartLatLng], {
+        color: '#ef4444', weight: 2, dashArray: '6,4', fillOpacity: 0.08,
+      }).addTo(map);
+    }
+  });
+
+  map.on('mousemove', (e) => {
+    updateHoverReadout(e.latlng);
+    if (isDrawingBox && regionRect) {
+      regionRect.setBounds([
+        [Math.min(boxStartLatLng.lat, e.latlng.lat), Math.min(boxStartLatLng.lng, e.latlng.lng)],
+        [Math.max(boxStartLatLng.lat, e.latlng.lat), Math.max(boxStartLatLng.lng, e.latlng.lng)],
+      ]);
+    }
+  });
+
+  map.on('mouseup', () => {
+    if (isDrawingBox && regionRect) {
+      isDrawingBox = false;
+      map.dragging.enable();
+      const b = regionRect.getBounds();
+      regionBounds = [
+        Number(b.getNorth().toFixed(3)),
+        Number(b.getSouth().toFixed(3)),
+        Number(b.getWest().toFixed(3)),
+        Number(b.getEast().toFixed(3)),
+      ];
+    }
+  });
+
+  // ---------------- 3. WebGL2 Multi-Layer Shader Engine ----------------
+  const canvas = document.getElementById('gl-canvas');
+  const overlayCanvas = document.getElementById('overlay-canvas');
+  const overlayCtx = overlayCanvas.getContext('2d');
+
+  const gl = canvas.getContext('webgl2', {
+    alpha: true,
+    antialias: false,
+    premultipliedAlpha: false,
+    preserveDrawingBuffer: true,
+  });
+
+  const VS_SRC = `#version 300 es
+  in vec2 a_pos;
+  out vec2 v_uv;
+  void main() {
+    v_uv = vec2((a_pos.x + 1.0) * 0.5, (1.0 - a_pos.y) * 0.5);
+    gl_Position = vec4(a_pos, 0.0, 1.0);
+  }`;
+
+  const FS_SRC = `#version 300 es
+  precision highp float;
+  precision highp sampler2D;
+
+  in vec2 v_uv;
+  out vec4 outColor;
+
+  uniform sampler2D u_dataTexA;
+  uniform sampler2D u_dataTexB;
+  uniform sampler2D u_cmapTex;
+  uniform float u_blend;
+  uniform float u_scale;
+  uniform float u_offset;
+  uniform vec2 u_gridSize;
+  uniform vec4 u_dataBounds;     // (lonMin, lonMax, latMin, latMax)
+  uniform vec4 u_viewBounds;     // (lonMin, lonMax, mercTop, mercBot)
+  uniform float u_vmin;
+  uniform float u_vmax;
+  uniform float u_opacity;
+  uniform int u_mode;            // 0=smooth, 1=filled, 2=smooth+lines, 3=filled+lines, 4=lines_only
+  uniform float u_contourLevels;
+  uniform float u_lineWidth;
+  uniform vec3 u_lineColor;
+  uniform int u_clipOutOfRange;
+  uniform int u_maskBelow;
+  uniform float u_maskThreshold;
+  uniform int u_interpMode;      // 0=bilinear, 1=bicubic (Catmull-Rom 16-tap)
+
+  const float PI = 3.141592653589793;
+  const float SENTINEL = -1.0e20;
+
+  vec4 catmullRomWeights(float f) {
+    float f2 = f * f;
+    float f3 = f2 * f;
+    return vec4(
+      -0.5 * f3 + f2 - 0.5 * f,
+       1.5 * f3 - 2.5 * f2 + 1.0,
+      -1.5 * f3 + 2.0 * f2 + 0.5 * f,
+       0.5 * f3 - 0.5 * f2
+    );
+  }
+
+  float sampleTex(sampler2D tex, vec2 normUV, out bool valid) {
+    ivec2 maxC = ivec2(u_gridSize) - ivec2(1, 1);
+    vec2 fc = normUV * (u_gridSize - 1.0);
+    ivec2 i0 = clamp(ivec2(floor(fc)), ivec2(0, 0), maxC);
+    ivec2 i1 = min(i0 + ivec2(1, 1), maxC);
+    vec2 f = fract(fc);
+
+    float v00 = texelFetch(tex, i0, 0).r;
+    float v10 = texelFetch(tex, ivec2(i1.x, i0.y), 0).r;
+    float v01 = texelFetch(tex, ivec2(i0.x, i1.y), 0).r;
+    float v11 = texelFetch(tex, i1, 0).r;
+
+    if (v00 < SENTINEL || v10 < SENTINEL || v01 < SENTINEL || v11 < SENTINEL) {
+      valid = false;
+      return 0.0;
+    }
+    valid = true;
+    float bilin = mix(mix(v00, v10, f.x), mix(v01, v11, f.x), f.y);
+    if (u_interpMode == 0) {
+      return bilin;
+    }
+
+    // 16-tap Bicubic Catmull-Rom interpolation with NaN fallback & ringing clamp
+    vec4 wx = catmullRomWeights(f.x);
+    vec4 wy = catmullRomWeights(f.y);
+    float sum = 0.0;
+    for (int dy = -1; dy <= 2; dy++) {
+      int yy = clamp(i0.y + dy, 0, maxC.y);
+      float rowVal = 0.0;
+      for (int dx = -1; dx <= 2; dx++) {
+        int xx = clamp(i0.x + dx, 0, maxC.x);
+        float s = texelFetch(tex, ivec2(xx, yy), 0).r;
+        if (s < SENTINEL) {
+          return bilin; // fallback cleanly near coastline/NaN boundary
+        }
+        rowVal += s * wx[dx + 1];
+      }
+      sum += rowVal * wy[dy + 1];
+    }
+    float lo = min(min(v00, v10), min(v01, v11));
+    float hi = max(max(v00, v10), max(v01, v11));
+    return clamp(sum, lo, hi);
+  }
+
+  void main() {
+    float lon = mix(u_viewBounds.x, u_viewBounds.y, v_uv.x);
+    float mercY = mix(u_viewBounds.z, u_viewBounds.w, v_uv.y);
+    float lat = degrees(2.0 * atan(exp(mercY)) - 0.5 * PI);
+
+    float lonMin = u_dataBounds.x;
+    float lonMax = u_dataBounds.y;
+    float latMin = u_dataBounds.z;
+    float latMax = u_dataBounds.w;
+
+    if (lat < latMin || lat > latMax) discard;
+
+    float lonSpan = lonMax - lonMin;
+    if (lonSpan >= 358.5) {
+      lon = mod(lon - lonMin, 360.0) + lonMin;
+    } else {
+      if (lon < lonMin && (lon + 360.0) <= lonMax) lon += 360.0;
+      else if (lon > lonMax && (lon - 360.0) >= lonMin) lon -= 360.0;
+    }
+    if (lon < lonMin || lon > lonMax) discard;
+
+    float u = (lon - lonMin) / max(lonSpan, 1e-6);
+    float v = (latMax - lat) / max(latMax - latMin, 1e-6);
+
+    bool validA = false;
+    float valA = sampleTex(u_dataTexA, vec2(u, v), validA);
+    if (!validA) discard;
+
+    float val = valA;
+    if (u_blend > 0.0005) {
+      bool validB = false;
+      float valB = sampleTex(u_dataTexB, vec2(u, v), validB);
+      if (validB) val = mix(valA, valB, u_blend);
+    }
+
+    // Apply unit transform (scale * val + offset) directly on GPU
+    val = val * u_scale + u_offset;
+
+    if (u_maskBelow == 1 && val <= u_maskThreshold) discard;
+    if (u_clipOutOfRange == 1 && (val < u_vmin || val > u_vmax)) discard;
+
+    float span = max(u_vmax - u_vmin, 1e-9);
+    float tRaw = (val - u_vmin) / span;
+    float t = clamp(tRaw, 0.0, 1.0);
+
+    float levels = max(u_contourLevels, 2.0);
+    float tDisplay = t;
+    if (u_mode == 1 || u_mode == 3) {
+      tDisplay = (floor(min(t, 0.99999) * levels) + 0.5) / levels;
+    }
+
+    vec4 col = texture(u_cmapTex, vec2(tDisplay, 0.5));
+    float alpha = u_opacity;
+
+    if (u_mode == 2 || u_mode == 3 || u_mode == 4) {
+      float scaled = tRaw * levels;
+      float fw = max(fwidth(scaled), 1e-5);
+      float distToLine = abs(fract(scaled + 0.5) - 0.5) / fw;
+      float lineMask = 1.0 - smoothstep(u_lineWidth * 0.45, u_lineWidth * 0.45 + 1.0, distToLine);
+
+      if (u_mode == 4) {
+        if (lineMask < 0.02) discard;
+        outColor = vec4(u_lineColor, lineMask * max(u_opacity, 0.85));
+        return;
+      } else {
+        col.rgb = mix(col.rgb, u_lineColor, lineMask * 0.85);
+      }
+    }
+
+    outColor = vec4(col.rgb, alpha);
+  }`;
+
+  function compileShader(type, src) {
+    const s = gl.createShader(type);
+    gl.shaderSource(s, src);
+    gl.compileShader(s);
+    if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) {
+      console.error('Shader error:', gl.getShaderInfoLog(s));
+    }
+    return s;
+  }
+
+  let program = null;
+  let uniforms = {};
+
+  function makeDataTex() {
+    const tex = gl.createTexture();
+    gl.bindTexture(gl.TEXTURE_2D, tex);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    return tex;
+  }
+
+  function makeCmapTex() {
+    const tex = gl.createTexture();
+    gl.bindTexture(gl.TEXTURE_2D, tex);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    return tex;
+  }
+
+  if (gl) {
+    program = gl.createProgram();
+    gl.attachShader(program, compileShader(gl.VERTEX_SHADER, VS_SRC));
+    gl.attachShader(program, compileShader(gl.FRAGMENT_SHADER, FS_SRC));
+    gl.linkProgram(program);
+    gl.useProgram(program);
+
+    const quad = new Float32Array([-1, -1, 1, -1, -1, 1, -1, 1, 1, -1, 1, 1]);
+    const buf = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+    gl.bufferData(gl.ARRAY_BUFFER, quad, gl.STATIC_DRAW);
+    const posLoc = gl.getAttribLocation(program, 'a_pos');
+    gl.enableVertexAttribArray(posLoc);
+    gl.vertexAttribPointer(posLoc, 2, gl.FLOAT, false, 0, 0);
+
+    const uNames = [
+      'u_dataTexA', 'u_dataTexB', 'u_cmapTex', 'u_blend', 'u_scale', 'u_offset',
+      'u_gridSize', 'u_dataBounds', 'u_viewBounds',
+      'u_vmin', 'u_vmax', 'u_opacity', 'u_mode', 'u_contourLevels',
+      'u_lineWidth', 'u_lineColor', 'u_clipOutOfRange',
+      'u_maskBelow', 'u_maskThreshold', 'u_interpMode',
+    ];
+    for (const n of uNames) uniforms[n] = gl.getUniformLocation(program, n);
+    gl.uniform1i(uniforms.u_dataTexA, 0);
+    gl.uniform1i(uniforms.u_cmapTex, 1);
+    gl.uniform1i(uniforms.u_dataTexB, 2);
+
+    // Enable alpha blending for multi-layer compositing!
+    gl.enable(gl.BLEND);
+    gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+  }
+
+  // ---------------- 4. Multi-Layer State & Shared Frame Cache ----------------
+  let layers = [];          // Ordered bottom -> top
+  let activeLayerId = null; // Layer whose colorbar is displayed in HUD
+  let numTimes = 1;
+  let currentT = 0.0;
+  let currentTimeLabel = '';
+
+  // WebGL Upscaling & Interpolation Quality (SSAA + Bicubic Catmull-Rom)
+  const renderQuality = {
+    renderScale: 2.0,  // 2x supersampling by default (4x pixel density)
+    interpMode: 1,     // 1 = 16-tap Bicubic Catmull-Rom, 0 = 4-tap Bilinear
+  };
+
+  function getEffectiveDpr() {
+    return Math.min((window.devicePixelRatio || 1) * renderQuality.renderScale, 4.0);
+  }
+
+  const playback = {
+    playing: false,
+    smooth: true,
+    stepsPerSec: 2.0,
+    rafId: null,
+    lastTs: 0,
+    lastNotifyTs: 0,
+  };
+
+  // Shared LRU Frame Cache: key = `${varKey}|${levelIdx}|${idx}`
+  const MAX_CACHE = 260;
+  const frameCache = new Map();
+  const inflightFetches = new Map();
+
+  function fetchFrameCached(varKey, levelIdx, idx) {
+    const k = `${varKey}|${levelIdx}|${idx}`;
+    if (frameCache.has(k)) {
+      const hit = frameCache.get(k);
+      frameCache.delete(k);
+      frameCache.set(k, hit);
+      return Promise.resolve(hit);
+    }
+    if (inflightFetches.has(k)) return inflightFetches.get(k);
+
+    const url = `/api/plot/grid?var_key=${encodeURIComponent(varKey)}&time_idx=${idx}&level_idx=${levelIdx}`;
+    const prom = fetch(url)
+      .then(async (resp) => {
+        if (!resp.ok) throw new Error(`Grid fetch failed: ${resp.status}`);
+        const meta = JSON.parse(resp.headers.get('X-Grid-Meta'));
+        const buf = await resp.arrayBuffer();
+        const entry = { key: k, idx, arr: new Float32Array(buf), meta };
+        frameCache.set(k, entry);
+        if (frameCache.size > MAX_CACHE) {
+          const oldest = frameCache.keys().next().value;
+          frameCache.delete(oldest);
+        }
+        return entry;
+      })
+      .finally(() => inflightFetches.delete(k));
+
+    inflightFetches.set(k, prom);
+    return prom;
+  }
+
+  function buildLUTArray(stops) {
+    const lut = new Uint8Array(256 * 4);
+    const sorted = [...stops].sort((a, b) => a[0] - b[0]);
+    for (let i = 0; i < 256; i++) {
+      const t = i / 255.0;
+      let s0 = sorted[0], s1 = sorted[sorted.length - 1];
+      for (let j = 0; j < sorted.length - 1; j++) {
+        if (t >= sorted[j][0] && t <= sorted[j + 1][0]) {
+          s0 = sorted[j]; s1 = sorted[j + 1]; break;
+        }
+      }
+      const span = Math.max(s1[0] - s0[0], 1e-6);
+      const f = Math.max(0, Math.min(1, (t - s0[0]) / span));
+      lut[i * 4 + 0] = Math.round(s0[1] + (s1[1] - s0[1]) * f);
+      lut[i * 4 + 1] = Math.round(s0[2] + (s1[2] - s0[2]) * f);
+      lut[i * 4 + 2] = Math.round(s0[3] + (s1[3] - s0[3]) * f);
+      lut[i * 4 + 3] = 255;
+    }
+    return lut;
+  }
+
+  function uploadLayerCmap(layer) {
+    if (!gl || layer.type !== 'scalar' || !layer.cmapStops) return;
+    layer.cmapLUT = buildLUTArray(layer.cmapStops);
+    if (!layer.cmapTex) layer.cmapTex = makeCmapTex();
+    gl.activeTexture(gl.TEXTURE1);
+    gl.bindTexture(gl.TEXTURE_2D, layer.cmapTex);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 256, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, layer.cmapLUT);
+  }
+
+  function uploadLayerTex(layer, slot, entry) {
+    if (!gl || !entry) return;
+    if (slot === 'A') {
+      if (layer.uploadedKeyA === entry.key) return;
+      if (!layer.texA) layer.texA = makeDataTex();
+      gl.activeTexture(gl.TEXTURE0);
+      gl.bindTexture(gl.TEXTURE_2D, layer.texA);
+      gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
+      gl.texImage2D(gl.TEXTURE_2D, 0, gl.R32F, entry.meta.width, entry.meta.height, 0, gl.RED, gl.FLOAT, entry.arr);
+      layer.uploadedKeyA = entry.key;
+    } else {
+      if (layer.uploadedKeyB === entry.key) return;
+      if (!layer.texB) layer.texB = makeDataTex();
+      gl.activeTexture(gl.TEXTURE2);
+      gl.bindTexture(gl.TEXTURE_2D, layer.texB);
+      gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
+      gl.texImage2D(gl.TEXTURE_2D, 0, gl.R32F, entry.meta.width, entry.meta.height, 0, gl.RED, gl.FLOAT, entry.arr);
+      layer.uploadedKeyB = entry.key;
+    }
+  }
+
+  function parseUtcMs(label) {
+    if (!label) return null;
+    const m = /^(\d{4}-\d{2}-\d{2})[ T](\d{2}:\d{2})/.exec(label.trim());
+    if (!m) return null;
+    const ms = Date.parse(`${m[1]}T${m[2]}:00Z`);
+    return Number.isFinite(ms) ? ms : null;
+  }
+
+  function formatUtcMs(ms) {
+    const d = new Date(ms);
+    const pad = (n) => String(n).padStart(2, '0');
+    return `${d.getUTCFullYear()}-${pad(d.getUTCMonth() + 1)}-${pad(d.getUTCDate())} ` +
+           `${pad(d.getUTCHours())}:${pad(d.getUTCMinutes())} UTC`;
+  }
+
+  function interpolateTimeLabel(labelA, labelB, blend) {
+    if (!labelB || blend <= 0.001) return labelA || '';
+    if (blend >= 0.999) return labelB || '';
+    const msA = parseUtcMs(labelA);
+    const msB = parseUtcMs(labelB);
+    if (msA !== null && msB !== null) return formatUtcMs(msA + (msB - msA) * blend);
+    return blend < 0.5 ? labelA : labelB;
+  }
+
+  function formatNum(v) {
+    if (!Number.isFinite(v)) return '';
+    const abs = Math.abs(v);
+    if (abs >= 10000 || (abs > 0 && abs < 0.01)) return v.toExponential(1);
+    if (abs >= 100) return v.toFixed(0);
+    if (abs >= 10) return v.toFixed(1);
+    return v.toFixed(2);
+  }
+
+  function getPrimaryScalarLayer() {
+    const active = layers.find(l => l.id === activeLayerId && l.type === 'scalar' && l.visible && l.hasData);
+    if (active) return active;
+    return layers.find(l => l.type === 'scalar' && l.visible && l.hasData) || null;
+  }
+
+  function drawColorbar() {
+    const primary = getPrimaryScalarLayer();
+    const cbHud = document.getElementById('colorbar-hud');
+    if (!primary || !hudConfig.showColorbar || !primary.cmapLUT) {
+      cbHud.style.display = 'none';
+      return;
+    }
+    cbHud.style.display = 'block';
+    const cbCanvas = document.getElementById('colorbar-canvas');
+    const ctx = cbCanvas.getContext('2d');
+    const w = cbCanvas.width, h = cbCanvas.height;
+    const img = ctx.createImageData(w, h);
+    const levels = Math.max(primary.contourLevels, 2);
+    const stepped = (primary.mode === 1 || primary.mode === 3);
+
+    for (let x = 0; x < w; x++) {
+      let t = x / (w - 1);
+      if (stepped) t = (Math.floor(Math.min(t, 0.99999) * levels) + 0.5) / levels;
+      const idx = Math.min(255, Math.max(0, Math.round(t * 255))) * 4;
+      const r = primary.cmapLUT[idx], g = primary.cmapLUT[idx + 1], b = primary.cmapLUT[idx + 2];
+      for (let y = 0; y < h; y++) {
+        const p = (y * w + x) * 4;
+        img.data[p] = r; img.data[p + 1] = g; img.data[p + 2] = b; img.data[p + 3] = 255;
+      }
+    }
+    ctx.putImageData(img, 0, 0);
+
+    const span = primary.vmax - primary.vmin;
+    for (let i = 0; i < 5; i++) {
+      const el = document.getElementById('cb-t' + i);
+      if (el) el.textContent = formatNum(primary.vmin + span * (i / 4));
+    }
+    const unitStr = primary.displayUnit || (primary.meta ? primary.meta.units : '');
+    const nameStr = primary.customName || (primary.meta ? primary.meta.varName : '');
+    document.getElementById('colorbar-title').textContent = unitStr ? `${nameStr} (${unitStr})` : nameStr;
+  }
+
+  function updateHUD() {
+    const titleHud = document.getElementById('title-hud');
+    const anyVisible = layers.some(l => l.visible && l.hasData);
+    if (!anyVisible || !hudConfig.showTitle) {
+      titleHud.style.display = 'none';
+    } else {
+      titleHud.style.display = 'block';
+      let titleText = hudConfig.customTitle;
+      if (!titleText) {
+        const names = layers
+          .filter(l => l.visible && l.hasData)
+          .map(l => {
+            if (l.type === 'wind') return l.customName || `Wind (${l.displayUnit || 'm/s'})`;
+            const nm = l.customName || (l.meta ? l.meta.varName : '');
+            const un = l.displayUnit || (l.meta ? l.meta.units : '');
+            return un ? `${nm} [${un}]` : nm;
+          });
+        titleText = names.join('  +  ');
+      }
+      document.getElementById('hud-var-title').textContent = titleText;
+
+      const subParts = [];
+      if (hudConfig.customSubtitle) subParts.push(hudConfig.customSubtitle);
+      if (currentTimeLabel) subParts.push(currentTimeLabel);
+      document.getElementById('hud-time-sub').textContent = subParts.join('  •  ');
+    }
+    drawColorbar();
+  }
+
+  function mercY(latDeg) {
+    const rad = Math.max(-85.05112878, Math.min(85.05112878, latDeg)) * Math.PI / 180.0;
+    return Math.log(Math.tan(Math.PI / 4.0 + rad / 2.0));
+  }
+
+  function resizeCanvases() {
+    const size = map.getSize();
+    const dpr = getEffectiveDpr();
+    const pw = Math.max(1, Math.round(size.x * dpr));
+    const ph = Math.max(1, Math.round(size.y * dpr));
+    if (canvas.width !== pw || canvas.height !== ph) {
+      canvas.width = pw; canvas.height = ph;
+      canvas.style.width = size.x + 'px'; canvas.style.height = size.y + 'px';
+    }
+    if (overlayCanvas.width !== pw || overlayCanvas.height !== ph) {
+      overlayCanvas.width = pw; overlayCanvas.height = ph;
+      overlayCanvas.style.width = size.x + 'px'; overlayCanvas.style.height = size.y + 'px';
+    }
+    if (gl) gl.viewport(0, 0, canvas.width, canvas.height);
+  }
+
+  // ---------------- 5. CPU Grid Sampler (for Wind Vectors & Hover) ----------------
+  function sampleLayerCPU(gridA, gridB, blend, meta, lat, lon) {
+    if (!gridA || !meta) return null;
+    if (lat < meta.latMin || lat > meta.latMax) return null;
+    let adjLon = lon;
+    const lonSpan = meta.lonMax - meta.lonMin;
+    if (lonSpan >= 358.5) {
+      adjLon = (((adjLon - meta.lonMin) % 360) + 360) % 360 + meta.lonMin;
+    } else {
+      if (adjLon < meta.lonMin && adjLon + 360 <= meta.lonMax) adjLon += 360;
+      else if (adjLon > meta.lonMax && adjLon - 360 >= meta.lonMin) adjLon -= 360;
+    }
+    if (adjLon < meta.lonMin || adjLon > meta.lonMax) return null;
+
+    const u = (adjLon - meta.lonMin) / Math.max(lonSpan, 1e-6);
+    const v = (meta.latMax - lat) / Math.max(meta.latMax - meta.latMin, 1e-6);
+    const fx = u * (meta.width - 1);
+    const fy = v * (meta.height - 1);
+    const x0 = Math.max(0, Math.min(meta.width - 1, Math.floor(fx)));
+    const y0 = Math.max(0, Math.min(meta.height - 1, Math.floor(fy)));
+    const x1 = Math.min(meta.width - 1, x0 + 1);
+    const y1 = Math.min(meta.height - 1, y0 + 1);
+    const tx = fx - x0, ty = fy - y0;
+
+    function bilerp(arr) {
+      const v00 = arr[y0 * meta.width + x0];
+      const v10 = arr[y0 * meta.width + x1];
+      const v01 = arr[y1 * meta.width + x0];
+      const v11 = arr[y1 * meta.width + x1];
+      if (v00 < -1e20 || v10 < -1e20 || v01 < -1e20 || v11 < -1e20) return null;
+      return (v00 * (1 - tx) + v10 * tx) * (1 - ty) + (v01 * (1 - tx) + v11 * tx) * ty;
+    }
+
+    const valA = bilerp(gridA);
+    if (valA === null) return null;
+    if (blend > 0.0005 && gridB) {
+      const valB = bilerp(gridB);
+      if (valB !== null) return valA + (valB - valA) * blend;
+    }
+    return valA;
+  }
+
+  // ---------------- 6. Wind Vector & Map Label 2D Overlay Renderer ----------------
+  function speedToColor(spd) {
+    // Smooth meteorological wind color scale (m/s or scaled)
+    const t = Math.max(0, Math.min(1, spd / 35.0));
+    const r = Math.round(Math.min(255, Math.max(0, 255 * (1.8 * t))));
+    const g = Math.round(Math.min(255, Math.max(0, 255 * (1.0 - Math.abs(t - 0.5) * 1.8))));
+    const b = Math.round(Math.min(255, Math.max(0, 255 * (1.0 - 1.5 * t))));
+    return `rgb(${r},${g},${b})`;
+  }
+
+  function drawArrow(ctx, x, y, u, v, speed, scaleFactor, color) {
+    const angle = Math.atan2(-v, u); // screen Y points down, +V is north (up)
+    const len = Math.max(6, Math.min(34, (6 + speed * 0.9) * scaleFactor));
+    const head = Math.max(4, len * 0.34);
+
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.rotate(angle);
+    ctx.strokeStyle = color;
+    ctx.fillStyle = color;
+    ctx.lineWidth = 1.6;
+    ctx.lineCap = 'round';
+
+    ctx.beginPath();
+    ctx.moveTo(-len * 0.45, 0);
+    ctx.lineTo(len * 0.55, 0);
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.moveTo(len * 0.55, 0);
+    ctx.lineTo(len * 0.55 - head, -head * 0.48);
+    ctx.lineTo(len * 0.55 - head, head * 0.48);
+    ctx.closePath();
+    ctx.fill();
+    ctx.restore();
+  }
+
+  function drawWindBarb(ctx, x, y, u, v, speedKt, scaleFactor, color) {
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.strokeStyle = color;
+    ctx.fillStyle = color;
+    ctx.lineWidth = 1.4;
+    ctx.lineCap = 'round';
+
+    if (speedKt < 2.5) {
+      // Calm circle
+      ctx.beginPath();
+      ctx.arc(0, 0, 3.2 * scaleFactor, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.restore();
+      return;
+    }
+
+    // Wind barb staff points INTO the wind (where wind comes FROM)
+    const fromAngle = Math.atan2(v, -u);
+    ctx.rotate(fromAngle);
+
+    const staffLen = 22 * scaleFactor;
+    const barbLen = 8.5 * scaleFactor;
+    const step = 3.8 * scaleFactor;
+
+    ctx.beginPath();
+    ctx.moveTo(0, 0);
+    ctx.lineTo(staffLen, 0);
+    ctx.stroke();
+
+    let rem = Math.round(speedKt / 5) * 5;
+    let pos = staffLen;
+
+    // 50-kt pennants
+    while (rem >= 50 && pos > 4) {
+      ctx.beginPath();
+      ctx.moveTo(pos, 0);
+      ctx.lineTo(pos - step * 0.7, -barbLen);
+      ctx.lineTo(pos - step * 1.5, 0);
+      ctx.closePath();
+      ctx.fill();
+      pos -= step * 1.9;
+      rem -= 50;
+    }
+    // 10-kt full barbs
+    while (rem >= 10 && pos > 2) {
+      ctx.beginPath();
+      ctx.moveTo(pos, 0);
+      ctx.lineTo(pos + 2.2 * scaleFactor, -barbLen);
+      ctx.stroke();
+      pos -= step;
+      rem -= 10;
+    }
+    // 5-kt half barb
+    if (rem >= 5 && pos > 2) {
+      if (pos === staffLen) pos -= step;
+      ctx.beginPath();
+      ctx.moveTo(pos, 0);
+      ctx.lineTo(pos + 1.1 * scaleFactor, -barbLen * 0.55);
+      ctx.stroke();
+    }
+
+    ctx.restore();
+  }
+
+  function renderOverlay(targetCtx = null, cssW = null, cssH = null) {
+    const size = map.getSize();
+    const dpr = targetCtx ? 1 : getEffectiveDpr();
+    const W = cssW || size.x;
+    const H = cssH || size.y;
+    const ctx = targetCtx || overlayCtx;
+
+    ctx.save();
+    if (!targetCtx) {
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+      ctx.clearRect(0, 0, overlayCanvas.width, overlayCanvas.height);
+      ctx.scale(dpr, dpr);
+    }
+
+    // 1. Draw all visible Wind Vector layers
+    for (const layer of layers) {
+      if (layer.type !== 'wind' || !layer.visible || !layer.hasData) continue;
+      const spacing = Math.max(16, Number(layer.spacing || 36));
+      const vScale = Number(layer.vectorScale || 1.0);
+      const uScale = Number(layer.scale || 1.0);
+      const style = layer.vectorStyle || 'arrows';
+      const colorMode = layer.colorMode || 'white';
+      const fixedColor = {
+        white: '#ffffff',
+        black: '#111827',
+        cyan: '#22d3ee',
+        yellow: '#fde047',
+      }[colorMode] || '#ffffff';
+
+      ctx.save();
+      ctx.globalAlpha = Number(layer.opacity ?? 0.9);
+
+      for (let py = spacing * 0.5; py < H; py += spacing) {
+        for (let px = spacing * 0.5; px < W; px += spacing) {
+          const ll = map.containerPointToLatLng([px, py]);
+          const uRaw = sampleLayerCPU(layer.uA, layer.uB, layer.blend || 0, layer.meta, ll.lat, ll.lng);
+          if (uRaw === null) continue;
+          const vRaw = sampleLayerCPU(layer.vA, layer.vB, layer.blend || 0, layer.meta, ll.lat, ll.lng);
+          if (vRaw === null) continue;
+
+          const u = uRaw * uScale;
+          const v = vRaw * uScale;
+          const spd = Math.hypot(u, v);
+          const col = (colorMode === 'speed') ? speedToColor(spd) : fixedColor;
+
+          if (style === 'barbs') {
+            // Convert raw m/s to knots if user left scale=1, otherwise use scaled value
+            const spdKt = (uScale === 1.0 && (layer.displayUnit === 'm/s' || !layer.displayUnit))
+              ? spd * 1.94384 : spd;
+            drawWindBarb(ctx, px, py, u, v, spdKt, vScale, col);
+          } else {
+            drawArrow(ctx, px, py, u, v, spd, vScale, col);
+          }
+        }
+      }
+      ctx.restore();
+    }
+
+    // 2. Draw all custom Map Labels / Pins
+    for (const lbl of mapLabels) {
+      const pt = map.latLngToContainerPoint([lbl.lat, lbl.lon]);
+      if (pt.x < -80 || pt.x > W + 80 || pt.y < -40 || pt.y > H + 40) continue;
+
+      const fSize = Number(lbl.fontSize || 13);
+      ctx.font = `600 ${fSize}px "Segoe UI", sans-serif`;
+      const textW = ctx.measureText(lbl.text).width;
+      const padX = 7, padY = 4;
+      const boxW = textW + padX * 2;
+      const boxH = fSize + padY * 2;
+
+      // Marker dot
+      ctx.beginPath();
+      ctx.arc(pt.x, pt.y, 3.8, 0, Math.PI * 2);
+      ctx.fillStyle = lbl.color || '#ffffff';
+      ctx.fill();
+      ctx.strokeStyle = 'rgba(0,0,0,0.8)';
+      ctx.lineWidth = 1.4;
+      ctx.stroke();
+
+      // Label pill above dot
+      const bx = pt.x - boxW / 2;
+      const by = pt.y - boxH - 8;
+      ctx.fillStyle = 'rgba(15, 18, 25, 0.82)';
+      ctx.beginPath();
+      ctx.roundRect(bx, by, boxW, boxH, 5);
+      ctx.fill();
+      ctx.strokeStyle = 'rgba(255,255,255,0.22)';
+      ctx.lineWidth = 1;
+      ctx.stroke();
+
+      ctx.fillStyle = lbl.color || '#ffffff';
+      ctx.textBaseline = 'middle';
+      ctx.textAlign = 'center';
+      ctx.fillText(lbl.text, pt.x, by + boxH / 2 + 0.5);
+    }
+
+    ctx.restore();
+  }
+
+  // ---------------- 7. Main WebGL + Overlay Render ----------------
+  function render() {
+    if (!gl) return;
+    resizeCanvases();
+    gl.clearColor(0, 0, 0, 0);
+    gl.clear(gl.COLOR_BUFFER_BIT);
+
+    const size = map.getSize();
+    const tl = map.containerPointToLatLng([0, 0]);
+    const br = map.containerPointToLatLng([size.x, size.y]);
+    const viewMercTop = mercY(tl.lat);
+    const viewMercBot = mercY(br.lat);
+
+    gl.useProgram(program);
+    gl.uniform4f(uniforms.u_viewBounds, tl.lng, br.lng, viewMercTop, viewMercBot);
+
+    for (const layer of layers) {
+      if (layer.type !== 'scalar' || !layer.visible || !layer.hasData || !layer.texA || !layer.cmapTex) {
+        continue;
+      }
+      gl.activeTexture(gl.TEXTURE0);
+      gl.bindTexture(gl.TEXTURE_2D, layer.texA);
+      gl.activeTexture(gl.TEXTURE1);
+      gl.bindTexture(gl.TEXTURE_2D, layer.cmapTex);
+      gl.activeTexture(gl.TEXTURE2);
+      gl.bindTexture(gl.TEXTURE_2D, layer.texB || layer.texA);
+
+      gl.uniform1f(uniforms.u_blend, layer.blend || 0.0);
+      gl.uniform1f(uniforms.u_scale, Number(layer.scale ?? 1.0));
+      gl.uniform1f(uniforms.u_offset, Number(layer.offset ?? 0.0));
+      gl.uniform2f(uniforms.u_gridSize, layer.meta.width, layer.meta.height);
+      gl.uniform4f(uniforms.u_dataBounds, layer.meta.lonMin, layer.meta.lonMax, layer.meta.latMin, layer.meta.latMax);
+      gl.uniform1f(uniforms.u_vmin, Number(layer.vmin));
+      gl.uniform1f(uniforms.u_vmax, Number(layer.vmax));
+      gl.uniform1f(uniforms.u_opacity, Number(layer.opacity));
+      gl.uniform1i(uniforms.u_mode, Number(layer.mode));
+      gl.uniform1f(uniforms.u_contourLevels, Number(layer.contourLevels));
+      gl.uniform1f(uniforms.u_lineWidth, Number(layer.lineWidth) * Math.max(1.0, renderQuality.renderScale * 0.85));
+      const lc = layer.lineColor || [0.08, 0.08, 0.08];
+      gl.uniform3f(uniforms.u_lineColor, lc[0], lc[1], lc[2]);
+      gl.uniform1i(uniforms.u_clipOutOfRange, layer.clipOutOfRange ? 1 : 0);
+      gl.uniform1i(uniforms.u_maskBelow, layer.maskBelow ? 1 : 0);
+      gl.uniform1f(uniforms.u_maskThreshold, Number(layer.maskThreshold ?? 0.0));
+      gl.uniform1i(uniforms.u_interpMode, Number(renderQuality.interpMode));
+
+      gl.drawArrays(gl.TRIANGLES, 0, 6);
+    }
+
+    renderOverlay();
+  }
+
+  map.on('move zoom resize moveend zoomend', render);
+  window.addEventListener('resize', () => { map.invalidateSize(); render(); });
+
+  // ---------------- 8. Multi-Layer Hover Inspection ----------------
+  function updateHoverReadout(latlng) {
+    const el = document.getElementById('hover-hud');
+    const lat = latlng.lat, lon = latlng.lng;
+    const parts = [`Lat: ${lat.toFixed(2)}°  Lon: ${lon.toFixed(2)}°`];
+
+    for (const layer of layers) {
+      if (!layer.visible || !layer.hasData) continue;
+      if (layer.type === 'scalar') {
+        const raw = sampleLayerCPU(layer.gridA, layer.gridB, layer.blend || 0, layer.meta, lat, lon);
+        if (raw !== null) {
+          const val = raw * Number(layer.scale ?? 1.0) + Number(layer.offset ?? 0.0);
+          const un = layer.displayUnit || (layer.meta ? layer.meta.units : '');
+          const nm = layer.customName || layer.meta.varName;
+          parts.push(`${nm}: ${val.toFixed(2)}${un ? ' ' + un : ''}`);
+        }
+      } else if (layer.type === 'wind') {
+        const uRaw = sampleLayerCPU(layer.uA, layer.uB, layer.blend || 0, layer.meta, lat, lon);
+        const vRaw = sampleLayerCPU(layer.vA, layer.vB, layer.blend || 0, layer.meta, lat, lon);
+        if (uRaw !== null && vRaw !== null) {
+          const sc = Number(layer.scale ?? 1.0);
+          const u = uRaw * sc, v = vRaw * sc;
+          const spd = Math.hypot(u, v);
+          const dir = (Math.atan2(-u, -v) * 180 / Math.PI + 360) % 360;
+          const un = layer.displayUnit || 'm/s';
+          parts.push(`Wind: ${spd.toFixed(1)} ${un} @ ${Math.round(dir)}°`);
+        }
+      }
+    }
+    el.textContent = parts.join('  |  ');
+  }
+
+  // ---------------- 9. Multi-Layer Frame Loading & 60 FPS Sync ----------------
+  function prefetchAllLayers(fromIdx, count = 6) {
+    if (numTimes <= 1) return;
+    for (const layer of layers) {
+      if (!layer.visible) continue;
+      const lMax = Math.max(1, layer.numTimes || numTimes);
+      for (let k = 1; k <= count; k++) {
+        const idx = (fromIdx + k) % lMax;
+        if (layer.type === 'scalar' && layer.varKey) {
+          fetchFrameCached(layer.varKey, layer.levelIdx || 0, idx).catch(() => {});
+        } else if (layer.type === 'wind' && layer.uVarKey && layer.vVarKey) {
+          fetchFrameCached(layer.uVarKey, layer.levelIdx || 0, idx).catch(() => {});
+          fetchFrameCached(layer.vVarKey, layer.levelIdx || 0, idx).catch(() => {});
+        }
+      }
+    }
+  }
+
+  async function loadAllLayersAtTime(tFloat, fitBounds = false) {
+    const maxIdx = Math.max(0, numTimes - 1);
+    currentT = Math.max(0, Math.min(maxIdx, Number(tFloat)));
+    const idxA = Math.floor(currentT);
+    const frac = playback.smooth ? (currentT - idxA) : 0.0;
+    const idxB = (frac > 0.0005 && idxA < maxIdx) ? (idxA + 1) : idxA;
+
+    let firstMeta = null;
+    let timeLblA = '', timeLblB = '';
+
+    await Promise.all(layers.map(async (layer) => {
+      if (!layer.visible) return;
+      const lMax = Math.max(0, (layer.numTimes || numTimes) - 1);
+      const a = Math.min(idxA, lMax);
+      const b = Math.min(idxB, lMax);
+      const blend = (a === b) ? 0.0 : frac;
+
+      if (layer.type === 'scalar' && layer.varKey) {
+        const eA = await fetchFrameCached(layer.varKey, layer.levelIdx || 0, a);
+        const eB = (b !== a) ? await fetchFrameCached(layer.varKey, layer.levelIdx || 0, b) : eA;
+        layer.gridA = eA.arr;
+        layer.gridB = eB.arr;
+        layer.blend = blend;
+        layer.meta = eA.meta;
+        layer.hasData = true;
+        uploadLayerTex(layer, 'A', eA);
+        if (blend > 0.0005) uploadLayerTex(layer, 'B', eB);
+        if (!firstMeta) firstMeta = eA.meta;
+        if (!timeLblA) { timeLblA = eA.meta.timeLabel; timeLblB = eB.meta.timeLabel; }
+      } else if (layer.type === 'wind' && layer.uVarKey && layer.vVarKey) {
+        const [uA, vA] = await Promise.all([
+          fetchFrameCached(layer.uVarKey, layer.levelIdx || 0, a),
+          fetchFrameCached(layer.vVarKey, layer.levelIdx || 0, a),
+        ]);
+        const [uB, vB] = (b !== a)
+          ? await Promise.all([
+              fetchFrameCached(layer.uVarKey, layer.levelIdx || 0, b),
+              fetchFrameCached(layer.vVarKey, layer.levelIdx || 0, b),
+            ])
+          : [uA, vA];
+        layer.uA = uA.arr; layer.uB = uB.arr;
+        layer.vA = vA.arr; layer.vB = vB.arr;
+        layer.blend = blend;
+        layer.meta = uA.meta;
+        layer.hasData = true;
+        if (!firstMeta) firstMeta = uA.meta;
+        if (!timeLblA) { timeLblA = uA.meta.timeLabel; timeLblB = uB.meta.timeLabel; }
+      }
+    }));
+
+    currentTimeLabel = interpolateTimeLabel(timeLblA, timeLblB, frac);
+
+    if (fitBounds && firstMeta) {
+      const spanLon = firstMeta.lonMax - firstMeta.lonMin;
+      if (spanLon >= 350) map.setView([20, 0], 2, { animate: false });
+      else map.fitBounds([[firstMeta.latMin, firstMeta.lonMin], [firstMeta.latMax, firstMeta.lonMax]], {
+        padding: [24, 24], animate: false,
+      });
+    }
+
+    prefetchAllLayers(idxA, 6);
+    updateHUD();
+    render();
+    return firstMeta;
+  }
+
+  function notifyParentTime(nowMs, force = false) {
+    if (!force && nowMs - playback.lastNotifyTs < 80) return;
+    playback.lastNotifyTs = nowMs;
+    window.parent.postMessage({
+      type: 'metplot_time_sync',
+      t: currentT,
+      timeLabel: currentTimeLabel,
+      numTimes: numTimes,
+    }, '*');
+  }
+
+  function playbackLoop(nowMs) {
+    if (!playback.playing) {
+      playback.rafId = null;
+      return;
+    }
+    playback.rafId = requestAnimationFrame(playbackLoop);
+    if (numTimes <= 1 || layers.length === 0) return;
+
+    const dtSec = playback.lastTs ? Math.min(0.1, (nowMs - playback.lastTs) / 1000.0) : 0.0;
+    playback.lastTs = nowMs;
+
+    const maxIdx = numTimes - 1;
+    let nextT = currentT + dtSec * playback.stepsPerSec;
+    if (nextT >= maxIdx) nextT = nextT % maxIdx;
+
+    const idxA = Math.floor(nextT);
+    const idxB = Math.min(maxIdx, idxA + 1);
+    const frac = playback.smooth ? (nextT - idxA) : 0.0;
+
+    // Check if all visible layers have cached A & B
+    let allReady = true;
+    for (const layer of layers) {
+      if (!layer.visible) continue;
+      const lMax = Math.max(0, (layer.numTimes || numTimes) - 1);
+      const a = Math.min(idxA, lMax);
+      const b = Math.min(idxB, lMax);
+      const needB = (frac > 0.0005 && b !== a);
+      if (layer.type === 'scalar' && layer.varKey) {
+        const kA = `${layer.varKey}|${layer.levelIdx || 0}|${a}`;
+        const kB = `${layer.varKey}|${layer.levelIdx || 0}|${b}`;
+        if (!frameCache.has(kA)) { fetchFrameCached(layer.varKey, layer.levelIdx || 0, a).catch(() => {}); allReady = false; }
+        if (needB && !frameCache.has(kB)) { fetchFrameCached(layer.varKey, layer.levelIdx || 0, b).catch(() => {}); allReady = false; }
+      } else if (layer.type === 'wind' && layer.uVarKey && layer.vVarKey) {
+        const kuA = `${layer.uVarKey}|${layer.levelIdx || 0}|${a}`;
+        const kvA = `${layer.vVarKey}|${layer.levelIdx || 0}|${a}`;
+        const kuB = `${layer.uVarKey}|${layer.levelIdx || 0}|${b}`;
+        const kvB = `${layer.vVarKey}|${layer.levelIdx || 0}|${b}`;
+        if (!frameCache.has(kuA)) { fetchFrameCached(layer.uVarKey, layer.levelIdx || 0, a).catch(() => {}); allReady = false; }
+        if (!frameCache.has(kvA)) { fetchFrameCached(layer.vVarKey, layer.levelIdx || 0, a).catch(() => {}); allReady = false; }
+        if (needB && !frameCache.has(kuB)) { fetchFrameCached(layer.uVarKey, layer.levelIdx || 0, b).catch(() => {}); allReady = false; }
+        if (needB && !frameCache.has(kvB)) { fetchFrameCached(layer.vVarKey, layer.levelIdx || 0, b).catch(() => {}); allReady = false; }
+      }
+    }
+
+    prefetchAllLayers(idxA, 8);
+    if (!allReady) return;
+
+    currentT = nextT;
+    let timeLblA = '', timeLblB = '';
+
+    for (const layer of layers) {
+      if (!layer.visible) continue;
+      const lMax = Math.max(0, (layer.numTimes || numTimes) - 1);
+      const a = Math.min(idxA, lMax);
+      const b = Math.min(idxB, lMax);
+      const blend = (a === b) ? 0.0 : frac;
+
+      if (layer.type === 'scalar' && layer.varKey) {
+        const eA = frameCache.get(`${layer.varKey}|${layer.levelIdx || 0}|${a}`);
+        const eB = (b !== a) ? frameCache.get(`${layer.varKey}|${layer.levelIdx || 0}|${b}`) : eA;
+        layer.gridA = eA.arr; layer.gridB = eB.arr;
+        layer.blend = blend; layer.meta = eA.meta; layer.hasData = true;
+        uploadLayerTex(layer, 'A', eA);
+        if (blend > 0.0005) uploadLayerTex(layer, 'B', eB);
+        if (!timeLblA) { timeLblA = eA.meta.timeLabel; timeLblB = eB.meta.timeLabel; }
+      } else if (layer.type === 'wind' && layer.uVarKey && layer.vVarKey) {
+        const uA = frameCache.get(`${layer.uVarKey}|${layer.levelIdx || 0}|${a}`);
+        const vA = frameCache.get(`${layer.vVarKey}|${layer.levelIdx || 0}|${a}`);
+        const uB = (b !== a) ? frameCache.get(`${layer.uVarKey}|${layer.levelIdx || 0}|${b}`) : uA;
+        const vB = (b !== a) ? frameCache.get(`${layer.vVarKey}|${layer.levelIdx || 0}|${b}`) : vA;
+        layer.uA = uA.arr; layer.uB = uB.arr;
+        layer.vA = vA.arr; layer.vB = vB.arr;
+        layer.blend = blend; layer.meta = uA.meta; layer.hasData = true;
+        if (!timeLblA) { timeLblA = uA.meta.timeLabel; timeLblB = uB.meta.timeLabel; }
+      }
+    }
+
+    currentTimeLabel = interpolateTimeLabel(timeLblA, timeLblB, frac);
+    updateHUD();
+    render();
+    notifyParentTime(nowMs, false);
+  }
+
+  function setPlayback(cfg) {
+    if (cfg.stepsPerSec !== undefined) playback.stepsPerSec = Math.max(0.1, Number(cfg.stepsPerSec));
+    if (cfg.smooth !== undefined) playback.smooth = Boolean(cfg.smooth);
+    if (cfg.numTimes !== undefined) numTimes = Math.max(1, Number(cfg.numTimes));
+    if (cfg.playing !== undefined) {
+      const wantPlay = Boolean(cfg.playing);
+      if (wantPlay && !playback.playing) {
+        playback.playing = true;
+        playback.lastTs = performance.now();
+        prefetchAllLayers(Math.floor(currentT), 8);
+        playback.rafId = requestAnimationFrame(playbackLoop);
+      } else if (!wantPlay && playback.playing) {
+        playback.playing = false;
+        if (playback.rafId) {
+          cancelAnimationFrame(playback.rafId);
+          playback.rafId = null;
+        }
+        notifyParentTime(performance.now(), true);
+      }
+    }
+  }
+
+  // ---------------- 10. Export Compositor (OSM + Multi-Layer WebGL + Wind + Labels + HUD) ----------------
+  function waitForTiles(timeoutMs = 2500) {
+    return new Promise((resolve) => {
+      let done = false;
+      const finish = () => { if (!done) { done = true; resolve(); } };
+      if (!currentTileLayer || !currentTileLayer._loading) { setTimeout(finish, 180); return; }
+      currentTileLayer.once('load', () => setTimeout(finish, 120));
+      setTimeout(finish, timeoutMs);
+    });
+  }
+
+  function compositeFrameToBlob(includeHud, exportScale = 1) {
+    const mapEl = document.getElementById('map');
+    const mapRect = mapEl.getBoundingClientRect();
+    const W = Math.max(2, Math.round(mapRect.width));
+    const H = Math.max(2, Math.round(mapRect.height));
+    const sc = Math.max(1, Math.min(2, Number(exportScale || 1)));
+
+    const off = document.createElement('canvas');
+    off.width = Math.round(W * sc);
+    off.height = Math.round(H * sc);
+    const ctx = off.getContext('2d');
+    ctx.scale(sc, sc);
+
+    ctx.fillStyle = '#1a1d24';
+    ctx.fillRect(0, 0, W, H);
+
+    // 1. OSM tiles
+    const tiles = mapEl.querySelectorAll('.leaflet-tile-pane img.leaflet-tile');
+    for (const img of tiles) {
+      if (!img.complete || img.naturalWidth === 0) continue;
+      const r = img.getBoundingClientRect();
+      if (r.right < mapRect.left || r.left > mapRect.right || r.bottom < mapRect.top || r.top > mapRect.bottom) continue;
+      try {
+        ctx.drawImage(img, r.left - mapRect.left, r.top - mapRect.top, r.width, r.height);
+      } catch (e) {}
+    }
+
+    // 2. All WebGL scalar/contour layers
+    render();
+    ctx.drawImage(canvas, 0, 0, W, H);
+
+    // 3. Wind vectors + custom map labels
+    renderOverlay(ctx, W, H);
+
+    // 4. Title & Colorbar HUD
+    if (includeHud) {
+      if (hudConfig.showTitle) {
+        const titleText = document.getElementById('hud-var-title').textContent;
+        const subText = document.getElementById('hud-time-sub').textContent;
+        if (titleText) {
+          ctx.font = 'bold 14px "Segoe UI", sans-serif';
+          const w1 = ctx.measureText(titleText).width;
+          ctx.font = '12px "Segoe UI", sans-serif';
+          const w2 = ctx.measureText(subText).width;
+          const boxW = Math.min(W - 32, Math.max(w1, w2) + 28);
+          const boxH = subText ? 48 : 32;
+
+          ctx.fillStyle = 'rgba(18, 18, 24, 0.84)';
+          ctx.beginPath(); ctx.roundRect(14, 14, boxW, boxH, 8); ctx.fill();
+          ctx.strokeStyle = 'rgba(255,255,255,0.18)'; ctx.stroke();
+
+          ctx.fillStyle = '#f3f4f6'; ctx.font = 'bold 14px "Segoe UI", sans-serif';
+          ctx.fillText(titleText, 26, 33);
+          if (subText) {
+            ctx.fillStyle = '#cbd5e1'; ctx.font = '12px "Segoe UI", sans-serif';
+            ctx.fillText(subText, 26, 51);
+          }
+        }
+      }
+
+      const primary = getPrimaryScalarLayer();
+      if (primary && hudConfig.showColorbar) {
+        const cbW = 284, cbH = 54;
+        const cbX = W - cbW - 14, cbY = H - cbH - 14;
+        ctx.fillStyle = 'rgba(18, 18, 24, 0.86)';
+        ctx.beginPath(); ctx.roundRect(cbX, cbY, cbW, cbH, 8); ctx.fill();
+        ctx.strokeStyle = 'rgba(255,255,255,0.18)'; ctx.stroke();
+
+        const cbTitle = document.getElementById('colorbar-title').textContent;
+        ctx.fillStyle = '#cbd5e1'; ctx.font = '11px "Segoe UI", sans-serif'; ctx.textAlign = 'center';
+        ctx.fillText(cbTitle, cbX + cbW / 2, cbY + 14);
+
+        ctx.drawImage(document.getElementById('colorbar-canvas'), cbX + 12, cbY + 20, 260, 14);
+
+        ctx.fillStyle = '#e2e8f0'; ctx.font = '10px "Segoe UI", sans-serif';
+        const span = primary.vmax - primary.vmin;
+        for (let i = 0; i < 5; i++) {
+          const tx = cbX + 12 + (260 * i) / 4;
+          ctx.textAlign = i === 0 ? 'left' : (i === 4 ? 'right' : 'center');
+          ctx.fillText(formatNum(primary.vmin + span * (i / 4)), tx, cbY + 46);
+        }
+        ctx.textAlign = 'left';
+      }
+    }
+
+    return new Promise((resolve) => off.toBlob(resolve, 'image/png'));
+  }
+
+  async function runExport(opts) {
+    setPlayback({ playing: false });
+    if (regionRect) { map.removeLayer(regionRect); regionRect = null; }
+
+    if (opts.bbox && opts.bbox.length === 4) {
+      const [top, bottom, left, right] = opts.bbox;
+      map.fitBounds([[bottom, left], [top, right]], { animate: false, padding: [0, 0] });
+      await waitForTiles(3000);
+    } else {
+      await waitForTiles(1200);
+    }
+
+    const subframes = Math.max(1, Math.round(opts.subframes || 1));
+    const exportScale = Math.max(1, Math.min(2, Number(opts.exportScale || 1)));
+    const prevSmooth = playback.smooth;
+    playback.smooth = subframes > 1;
+    let frameNum = 0;
+
+    try {
+      for (let t = opts.startIdx; t <= opts.endIdx; t++) {
+        const kMax = (t < opts.endIdx) ? subframes : 1;
+        for (let k = 0; k < kMax; k++) {
+          await loadAllLayersAtTime(t + (k / subframes), false);
+          const blob = await compositeFrameToBlob(opts.includeHud, exportScale);
+          const resp = await fetch(
+            `/api/plot/export/frame?sid=${encodeURIComponent(opts.sessionId)}&idx=${frameNum}`,
+            { method: 'POST', body: blob }
+          );
+          if (!resp.ok) throw new Error('Failed to upload export frame');
+          frameNum++;
+        }
+      }
+    } finally {
+      playback.smooth = prevSmooth;
+    }
+    return frameNum;
+  }
+
+  // ---------------- 11. Public API exposed to NiceGUI parent ----------------
+  window.MetPlotGL = {
+    syncLayers(layerSpecs, activeId, maxTimes, fitBounds = false) {
+      // Preserve GPU textures & cached grids for existing layer IDs
+      const byId = new Map(layers.map(l => [l.id, l]));
+      const nextLayers = [];
+      for (const spec of layerSpecs) {
+        const prev = byId.get(spec.id) || {};
+        const merged = { ...prev, ...spec };
+        if (merged.type === 'scalar') {
+          const prevStopsJson = prev._stopsJson || '';
+          const newStopsJson = JSON.stringify(spec.cmapStops || []);
+          if (newStopsJson !== prevStopsJson || !merged.cmapTex) {
+            merged._stopsJson = newStopsJson;
+            uploadLayerCmap(merged);
+          }
+        }
+        nextLayers.push(merged);
+      }
+      // Clean up GPU textures of removed layers
+      const keptIds = new Set(nextLayers.map(l => l.id));
+      for (const old of layers) {
+        if (!keptIds.has(old.id) && gl) {
+          if (old.texA) gl.deleteTexture(old.texA);
+          if (old.texB) gl.deleteTexture(old.texB);
+          if (old.cmapTex) gl.deleteTexture(old.cmapTex);
+        }
+      }
+      layers = nextLayers;
+      activeLayerId = activeId;
+      numTimes = Math.max(1, Number(maxTimes || 1));
+      return loadAllLayersAtTime(currentT, fitBounds);
+    },
+
+    updateLayerStyle(layerId, patch) {
+      const layer = layers.find(l => l.id === layerId);
+      if (!layer) return;
+      Object.assign(layer, patch);
+      if (patch.cmapStops && layer.type === 'scalar') {
+        layer._stopsJson = JSON.stringify(patch.cmapStops);
+        uploadLayerCmap(layer);
+      }
+      updateHUD();
+      render();
+    },
+
+    setActiveLayer(layerId) {
+      activeLayerId = layerId;
+      updateHUD();
+    },
+
+    loadTime(tFloat, fitBounds = false) {
+      return loadAllLayersAtTime(tFloat, fitBounds);
+    },
+
+    setPlayback,
+    setBasemap,
+
+    setRenderQuality(cfg) {
+      if (cfg.renderScale !== undefined) {
+        renderQuality.renderScale = Math.max(1.0, Math.min(3.0, Number(cfg.renderScale)));
+      }
+      if (cfg.interpMode !== undefined) {
+        renderQuality.interpMode = Number(cfg.interpMode) ? 1 : 0;
+      }
+      render();
+    },
+
+    setHudConfig(cfg) {
+      Object.assign(hudConfig, cfg);
+      updateHUD();
+    },
+
+    setMapLabels(lbls) {
+      mapLabels = Array.isArray(lbls) ? lbls : [];
+      renderOverlay();
+    },
+
+    setLabelPlacementMode(enabled, text, color) {
+      labelPlaceMode = Boolean(enabled);
+      pendingLabelText = text || 'Label';
+      pendingLabelColor = color || '#ffffff';
+      const mapEl = document.getElementById('map');
+      const hint = document.getElementById('hint-hud');
+      if (labelPlaceMode) {
+        mapEl.classList.add('label-place-cursor');
+        hint.textContent = `Click map to place label: "${pendingLabelText}"`;
+        hint.style.color = '#f87171';
+      } else {
+        mapEl.classList.remove('label-place-cursor');
+        hint.textContent = 'Shift + Drag to select export region';
+        hint.style.color = '#94a3b8';
+      }
+    },
+
+    getRegionBounds() { return regionBounds; },
+    getCurrentViewBounds() {
+      const b = map.getBounds();
+      return [
+        Number(b.getNorth().toFixed(3)),
+        Number(b.getSouth().toFixed(3)),
+        Number(b.getWest().toFixed(3)),
+        Number(b.getEast().toFixed(3)),
+      ];
+    },
+    clearRegionBox() {
+      if (regionRect) { map.removeLayer(regionRect); regionRect = null; }
+      regionBounds = null;
+    },
+    fitDataBounds() {
+      const first = layers.find(l => l.hasData && l.meta);
+      if (!first) return;
+      const m = first.meta;
+      map.fitBounds([[m.latMin, m.lonMin], [m.latMax, m.lonMax]], { padding: [24, 24] });
+    },
+    runExport,
+  };
+})();
+</script>
+</body>
+</html>
