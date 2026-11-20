@@ -1628,11 +1628,9 @@ async def plot_page():
 
         # Right Map + Bottom 60 FPS Animation Bar
         with ui.column().style("flex: 1; height: 100%; gap: 0; overflow: hidden;"):
-            ui.html(
-                '<iframe id="plot-frame" src="/plot_canvas" '
-                'style="width:100%; height:100%; border:none; display:block;"></iframe>',
-                
-            ).style("flex: 1; width: 100%; min-height: 0;")
+            ui.element("iframe").props('id="plot-frame" src="/plot_canvas"').style(
+                "flex: 1; width: 100%; height: 100%; min-height: 0; border: none; display: block;"
+            )
 
             with ui.row().style(
                 "width: 100%; height: 58px; background-color: #18181b; "
