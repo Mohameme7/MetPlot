@@ -1,5 +1,5 @@
 # Description
-MetPlot is a library/tool that allows users to install meteorlogical data in a flexable way with various tools, and also there's a ready GUI App using it in the Repo that uses and abstracts its features.
+MetPlot is a library/tool that allows users to install meteorological data in a flexible way with various tools, and also there's a ready GUI App using it in the Repo that uses and abstracts its features, as well as an engine for plotting using WebGL inside the GUI With high flexibility.
 
 # Installation
 You can install it by Conda
@@ -23,6 +23,6 @@ Or Build it by source:
 
 # TODO
 - ~~Add Functionality for GEM Model~~
-- Add ECMWF Model
-- Create documentation for adding models and making it a simpler process
+- ~~Add ECMWF Model~~
+- Create documentation for adding models ~~and making it a simpler process~~
 - ~~Adding a size estimation for the downloaded files and a progressbar~~
