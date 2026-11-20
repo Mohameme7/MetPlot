@@ -230,10 +230,13 @@ class DatasetManager:
 
         if ext in (".grib", ".grib2", ".grb", ".grb2"):
             import cfgrib
+            from MetPlot.Interpolation import consolidate_grib_datasets
 
-            dsets = cfgrib.open_datasets(
-                str(path),
-                backend_kwargs={"indexpath": ""},
+            dsets = consolidate_grib_datasets(
+                cfgrib.open_datasets(
+                    str(path),
+                    backend_kwargs={"indexpath": ""},
+                )
             )
             for i, ds in enumerate(dsets):
                 gname = self._infer_group_name(ds, i)

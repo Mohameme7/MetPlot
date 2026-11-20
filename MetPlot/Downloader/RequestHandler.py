@@ -12,7 +12,9 @@ class RequestInfo(NamedTuple):
 
 class RequestClient(httpx.Client):
     def __init__(self):
-        super().__init__(timeout=httpx.Timeout(20))
+        super().__init__(timeout=httpx.Timeout(100),               follow_redirects=True,
+headers={"User-Agent": "Mozilla/5.0 (X11; Linux x86_64) Gecko/20100101 Firefox/130.0"},
+)
 
     def SendRequest(self, method: Literal['get', 'post'], **kwargs) -> RequestInfo:
         """

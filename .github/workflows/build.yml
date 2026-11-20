@@ -1,10 +1,10 @@
-name: Build
+name: Build & Test
 
 on:
   workflow_dispatch:
   pull_request:
   push:
-    branches: [ ci-test ]
+    branches: [ main, master, ci-test ]
 
 jobs:
   build:
@@ -39,8 +39,13 @@ jobs:
           init-shell: bash
           cache-environment: true
           create-args: >-
-            python=3.11
-            pygrib
+            python=3.12
+            xarray
+            cfgrib
+            eccodes
+            python-eccodes
+            netcdf4
+            pandas
             cartopy
             numpy
             scipy
@@ -49,17 +54,36 @@ jobs:
             beautifulsoup4
             httpx
             requests
+            ffmpeg
+            pytest
             setuptools<81
+
+      - name: Install PyGObject (Linux)
+        if: runner.os == 'Linux'
+        run: micromamba install -y -n metplot-build -c conda-forge pygobject
 
       - name: Install MetPlot and GUI dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -e . --no-deps
-          pip install pyinstaller nicegui pywebview==5.4 customtkinter
+          pip install pyinstaller nicegui pywebview==5.4 customtkinter opencv-python-headless
+
+      - name: Ensure wgrib2 is executable (Unix)
+        if: runner.os != 'Windows'
+        run: |
+          if [ -f MetPlot/wgrib/wgrib2 ]; then
+            chmod +x MetPlot/wgrib/wgrib2
+          fi
+
+      - name: Run unit tests
+        run: python -m pytest tests
+
+      - name: Verify GUI syntax
+        run: |
+          python -c "import py_compile; [py_compile.compile(f, doraise=True) for f in ('GUI/main.py', 'GUI/modeldownloads.py', 'GUI/plotting_backend.py')]"
 
       - name: Build with PyInstaller
-        continue-on-error: true
-        run: pyinstaller main.spec
+        run: pyinstaller --clean --noconfirm main.spec
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
@@ -67,4 +91,4 @@ jobs:
           name: MetPlot-${{ matrix.os }}
           path: dist/
           retention-days: 14
-          if-no-files-found: warn
+          if-no-files-found: error

@@ -135,6 +135,21 @@ def test_context_manager_opens_and_closes_datasets(monkeypatch):
     assert calls["kw"]["backend_kwargs"] == {"indexpath": ""}
 
 
+def test_consolidates_mixed_interval_precip_and_preserves_time_dim(tmp_path):
+    pytest.importorskip("netCDF4")
+    # Simulate cfgrib splitting tp into a scalar step=0 dataset + overlapping 3h/6h datasets
+    ds_scalar = make_ds((0,), "tp", "surface").isel(step=0)  # no step dim (scalar!)
+    ds_3h = make_ds((3, 6), "tp", "surface")
+    ds_6h = make_ds((6, 9), "tp", "surface")
+
+    out = gi_with(ds_scalar, ds_3h, ds_6h).to_netcdf(tmp_path / "tp_mixed.nc")
+    with xr.open_dataset(out) as ds:
+        assert "tp" in ds.data_vars
+        assert "valid_time" in ds["tp"].dims
+        assert ds.sizes["valid_time"] == 10
+        np.testing.assert_allclose(ds["tp"].isel(latitude=0, longitude=0).values, np.arange(10))
+
+
 # --------------------------------------------------------------------------------------
 # integration test (network + eccodes)
 # --------------------------------------------------------------------------------------

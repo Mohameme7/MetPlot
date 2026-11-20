@@ -149,21 +149,9 @@ def test_crop_coords_propagates_failure():
 
 
 def test_grib_creation_merges(tmp_path):
-    class Msg:
-        def __init__(self, b): self.b = b
-        def tostring(self): return self.b
-
-    class FakeGF:
-        def __init__(self, path): self.path = path
-        def __enter__(self): return self
-        def __exit__(self, *a): pass
-        def __iter__(self):
-            return iter([Msg(open(self.path, "rb").read() + b"1"), Msg(b"2")])
-
     out = tmp_path / "out.grib"
-    with mock.patch.object(FileHandler.pygrib, "open", create=True, side_effect=lambda p: FakeGF(p)):
-        gc = FileHandler.GribCreation([b"A", b"B"], str(out))
-    assert out.read_bytes() == b"A12B12"
+    gc = FileHandler.GribCreation([b"A", b"", b"B"], str(out))
+    assert out.read_bytes() == b"AB"
     assert gc.FileName == str(out)
 
 

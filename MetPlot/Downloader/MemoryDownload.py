@@ -14,10 +14,18 @@ class Downloader(RequestClient):
         self.links = links
         self.queue = queue
 
-    def retrieve_data(self, url) -> bytes:
+    def retrieve_data(self, item) -> bytes:
+        if isinstance(item, tuple):
+            url, headers = item
+        else:
+            url, headers = item, None
+
         for attempt in range(self.MAX_RETRIES):
             try:
-                req = self.SendRequest('get', url=url)
+                kwargs = {"url": url, "follow_redirects": True}
+                if headers:
+                    kwargs["headers"] = headers
+                req = self.SendRequest('get', **kwargs)
                 if req.success:
                     if self.queue:
                         self.queue.put_nowait('.')
